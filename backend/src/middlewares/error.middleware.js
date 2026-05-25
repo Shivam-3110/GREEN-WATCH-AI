@@ -1,6 +1,7 @@
 export const errorHandler = (err, _req, res, _next) => {
-  const statusCode = err.statusCode || 500
-  const message = err.message || 'Internal server error'
+  const isMongoDuplicateError = err?.code === 11000
+  const statusCode = isMongoDuplicateError ? 409 : err.statusCode || 500
+  const message = isMongoDuplicateError ? 'Duplicate resource already exists' : err.message || 'Internal server error'
 
   if (process.env.NODE_ENV !== 'production') {
     console.error(err)

@@ -5,6 +5,10 @@ import ApiError from '../utils/ApiError.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
 const signToken = (userId, email) => {
+  if (!process.env.JWT_SECRET) {
+    throw new ApiError(500, 'Server auth configuration is missing')
+  }
+
   return jwt.sign({ userId, email }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   })
