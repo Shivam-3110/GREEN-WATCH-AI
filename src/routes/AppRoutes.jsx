@@ -4,6 +4,7 @@ import DashboardPage from '../pages/DashboardPage'
 import AirQualityPage from '../pages/AirQualityPage'
 import MapPage from '../pages/MapPage'
 import ChatPage from '../pages/ChatPage'
+import CarbonCalculatorPage from '../pages/CarbonCalculatorPage'
 import SettingsPage from '../pages/SettingsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import LoginPage from '../pages/auth/LoginPage'
@@ -35,6 +36,7 @@ function AppRoutes() {
         <Route path="/air-quality" element={<AirQualityPage />} />
         <Route path="/map-intelligence" element={<MapPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/carbon-calculator" element={<CarbonCalculatorPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
