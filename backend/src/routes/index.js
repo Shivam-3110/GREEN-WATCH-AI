@@ -2,6 +2,7 @@ import { Router } from 'express'
 import authRoutes from './auth.routes.js'
 import assistantRoutes from './assistant.routes.js'
 import carbonFootprintRoutes from './carbonFootprint.routes.js'
+import ecoScoreRoutes from './ecoScore.routes.js'
 import { authGuard } from '../middlewares/auth.middleware.js'
 
 const router = Router()
@@ -21,5 +22,6 @@ router.get('/protected/ping', authGuard, (req, res) => {
 router.use('/auth', authRoutes)
 router.use('/assistant', assistantRoutes)
 router.use('/carbon-footprint', carbonFootprintRoutes)
+router.use('/eco-score', ecoScoreRoutes)
 
 export default router

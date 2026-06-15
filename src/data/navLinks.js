@@ -4,5 +4,6 @@ export const navLinks = [
   { label: 'Map Intelligence', path: '/map-intelligence', icon: 'map' },
   { label: 'EcoSphere AI', path: '/chat', icon: 'message-circle' },
   { label: 'Carbon Calculator', path: '/carbon-calculator', icon: 'activity' },
+  { label: 'Waste Detection', path: '/waste-detection', icon: 'trash-2' },
   { label: 'Settings', path: '/settings', icon: 'settings' },
 ]
