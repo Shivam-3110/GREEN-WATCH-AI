@@ -7,5 +7,6 @@ export const navLinks = [
   { label: 'Waste Detection', path: '/waste-detection', icon: 'trash-2' },
   { label: 'Alert System', path: '/alerts', icon: 'bell' },
   { label: 'Eco Challenge', path: '/eco-challenge', icon: 'award' },
+  { label: 'City Simulator', path: '/city-simulator', icon: 'box' },
   { label: 'Settings', path: '/settings', icon: 'settings' },
 ]

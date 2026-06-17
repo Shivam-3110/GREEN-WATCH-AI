@@ -8,6 +8,7 @@ import CarbonCalculatorPage from '../pages/CarbonCalculatorPage'
 import WasteDetectionPage from '../pages/WasteDetectionPage'
 import AlertTestPage from '../pages/AlertTestPage'
 import EcoChallengePage from '../pages/EcoChallengePage'
+import CitySimulatorPage from '../pages/CitySimulatorPage'
 import SettingsPage from '../pages/SettingsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import LoginPage from '../pages/auth/LoginPage'
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="/waste-detection" element={<WasteDetectionPage />} />
         <Route path="/alerts" element={<AlertTestPage />} />
         <Route path="/eco-challenge" element={<EcoChallengePage />} />
+        <Route path="/city-simulator" element={<CitySimulatorPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
