@@ -47,7 +47,7 @@ function LoginPage() {
     <AuthShell
       eyebrow="Secure Access"
       title="Monitor the planet from one intelligent command layer."
-      subtitle="Sign in to continue tracking air quality, carbon intelligence, alerts, and environmental signals across EcoSphere AI."
+      subtitle="Sign in to continue tracking air quality, carbon intelligence, alerts, and environmental signals across GREEN-WATCH AI."
     >
       <motion.form
         onSubmit={handleSubmit}
@@ -69,7 +69,7 @@ function LoginPage() {
             value={form.email}
             onChange={handleChange}
             error={errors.email}
-            placeholder="you@ecosphere.ai"
+            placeholder="you@green-watch.ai"
             autoComplete="email"
           />
           <AuthTextField
@@ -95,7 +95,7 @@ function LoginPage() {
         </button>
 
         <p className="mt-5 text-center text-sm text-slate-300">
-          New to EcoSphere AI?{' '}
+          New to GREEN-WATCH AI?{' '}
           <Link to="/register" className="font-semibold text-emerald-300 hover:text-cyan-200">
             Create account
           </Link>

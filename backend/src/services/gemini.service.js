@@ -19,7 +19,7 @@ class GeminiService {
 5. Promote eco-friendly lifestyle changes
 
 Guidelines:
-- Be concise yet informative (max 300 words per response)
+- Be concise yet informative (max 30 words per response)
 - Use practical, implementable advice
 - Include specific data and metrics when relevant
 - Stay positive and encouraging about environmental action

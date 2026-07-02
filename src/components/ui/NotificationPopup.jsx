@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNotifications } from '../contexts/NotificationContext';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const SEVERITY_STYLES = {
   info: {

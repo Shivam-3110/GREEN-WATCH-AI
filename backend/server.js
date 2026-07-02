@@ -1,10 +1,8 @@
-import dotenv from 'dotenv'
+import 'dotenv/config'
 import http from 'http'
 import app from './src/app.js'
 import connectDB from './src/config/db.js'
 import { initSocket } from './src/sockets/socketServer.js'
-
-dotenv.config()
 
 const port = process.env.PORT || 5000
 const server = http.createServer(app)

@@ -53,7 +53,7 @@ function RegisterPage() {
     <AuthShell
       eyebrow="New Operator"
       title="Create your environmental intelligence workspace."
-      subtitle="Start a secure EcoSphere AI profile for carbon scoring, pollution insights, waste intelligence, and realtime alerts."
+      subtitle="Start a secure GREEN-WATCH AI profile for carbon scoring, pollution insights, waste intelligence, and realtime alerts."
     >
       <motion.form
         onSubmit={handleSubmit}
@@ -63,7 +63,7 @@ function RegisterPage() {
         className="rounded-lg border border-emerald-300/20 bg-[#06100d]/86 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-6"
       >
         <div className="mb-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Join EcoSphere</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Join GREEN-WATCH</p>
           <h2 className="mt-2 text-2xl font-semibold text-white">Register</h2>
         </div>
 
@@ -84,7 +84,7 @@ function RegisterPage() {
             value={form.email}
             onChange={handleChange}
             error={errors.email}
-            placeholder="you@ecosphere.ai"
+            placeholder="you@green-watch.ai"
             autoComplete="email"
           />
           <AuthTextField

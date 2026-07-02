@@ -43,7 +43,7 @@ export default function ChatPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              EcoSphere AI
+              GREEN-WATCH AI
             </h1>
             <p className="text-xs text-cyan-400/70">Environmental Intelligence Assistant</p>
           </div>

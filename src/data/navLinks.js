@@ -2,7 +2,7 @@ export const navLinks = [
   { label: 'Dashboard', path: '/dashboard', icon: 'grid' },
   { label: 'Air Quality', path: '/air-quality', icon: 'wind' },
   { label: 'Map Intelligence', path: '/map-intelligence', icon: 'map' },
-  { label: 'EcoSphere AI', path: '/chat', icon: 'message-circle' },
+  { label: 'GREEN-WATCH AI', path: '/chat', icon: 'message-circle' },
   { label: 'Carbon Calculator', path: '/carbon-calculator', icon: 'activity' },
   { label: 'Waste Detection', path: '/waste-detection', icon: 'trash-2' },
   { label: 'Alert System', path: '/alerts', icon: 'bell' },

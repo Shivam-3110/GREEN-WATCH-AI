@@ -5,6 +5,7 @@ import carbonFootprintRoutes from './carbonFootprint.routes.js'
 import ecoScoreRoutes from './ecoScore.routes.js'
 import alertsRoutes from './alerts.routes.js'
 import ecoChallengeRoutes from './ecoChallenge.routes.js'
+import airQualityRoutes from './airQuality.routes.js'
 import { authGuard } from '../middlewares/auth.middleware.js'
 
 const router = Router()
@@ -27,5 +28,6 @@ router.use('/carbon-footprint', carbonFootprintRoutes)
 router.use('/eco-score', ecoScoreRoutes)
 router.use('/alerts', alertsRoutes)
 router.use('/eco-challenge', ecoChallengeRoutes)
+router.use('/air-quality', airQualityRoutes)
 
 export default router
