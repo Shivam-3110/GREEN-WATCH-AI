@@ -17,6 +17,7 @@ import apiClient from '../services/apiClient'
 import SectionHeader from '../components/ui/SectionHeader'
 import GlassPanel from '../components/dashboard/GlassPanel'
 import { getLocationCoordinates } from '../utils/location'
+import MrGreenChat from '../components/ui/MrGreenChat'
 
 const tooltipStyle = {
   background: 'rgba(3, 8, 6, 0.92)',
@@ -39,6 +40,41 @@ const getAQIStatus = (aqi) => {
   if (aqi <= 150) return { label: 'Poor', color: 'orange' }
   if (aqi <= 200) return { label: 'Very Poor', color: 'red' }
   return { label: 'Severe', color: 'rose' }
+}
+
+const getRecommendations = ({ aqi, pm25, no2, o3, co }) => {
+  const recs = []
+
+  if (aqi <= 50)
+    recs.push({ icon: '🌿', title: 'Great day outdoors', color: 'emerald', desc: 'Air quality is excellent. Ideal for jogging, cycling, and outdoor sports for all age groups.' })
+  else if (aqi <= 100)
+    recs.push({ icon: '😷', title: 'Sensitive groups take care', color: 'amber', desc: 'Children, elderly, and people with asthma or heart conditions should reduce prolonged outdoor exertion.' })
+  else if (aqi <= 150)
+    recs.push({ icon: '⚠️', title: 'Limit outdoor activity', color: 'orange', desc: 'Everyone may experience discomfort. Avoid strenuous outdoor work. Keep windows closed during peak hours.' })
+  else if (aqi <= 200)
+    recs.push({ icon: '🚨', title: 'Stay indoors', color: 'red', desc: 'Serious health risk for all. Use N95 masks if going out. Run air purifiers indoors and avoid traffic areas.' })
+  else
+    recs.push({ icon: '☣️', title: 'Hazardous — Emergency level', color: 'rose', desc: 'Avoid all outdoor exposure. Seal windows and doors. Seek medical attention if experiencing breathing difficulty.' })
+
+  if (pm25 > 35)
+    recs.push({ icon: '🫁', title: 'High PM2.5 — Fine particles', color: 'orange', desc: `PM2.5 at ${pm25} µg/m³ penetrates deep into lungs. Wear N95 masks outdoors. Avoid cooking with solid fuels indoors.` })
+
+  if (no2 > 40)
+    recs.push({ icon: '🚗', title: 'Elevated NO₂ — Avoid traffic', color: 'amber', desc: `NO₂ at ${no2} µg/m³ is above safe limits. Avoid busy roads and diesel exhaust. Use public transport or cycle.` })
+
+  if (o3 > 100)
+    recs.push({ icon: '☀️', title: 'High ozone — Avoid midday outdoors', color: 'yellow', desc: `Ozone at ${o3} µg/m³ peaks in afternoon heat. Schedule outdoor activities before 10am or after 6pm.` })
+
+  if (co > 1000)
+    recs.push({ icon: '🔥', title: 'Elevated CO — Check ventilation', color: 'red', desc: `CO at ${co} µg/m³ is high. Ensure gas appliances are well-ventilated. Never run engines in enclosed spaces.` })
+
+  if (aqi > 100)
+    recs.push({ icon: '🏫', title: 'Schools & workplaces', color: 'indigo', desc: 'Shift outdoor school activities indoors. Employers should allow remote work on high-pollution days.' })
+
+  if (aqi > 150)
+    recs.push({ icon: '🌱', title: 'Community action needed', color: 'cyan', desc: 'Reduce crop burning, industrial emissions, and vehicle use. Plant trees and support local clean-air policies.' })
+
+  return recs
 }
 
 function AirQualityPage() {
@@ -182,6 +218,20 @@ function AirQualityPage() {
         </div>
       </GlassPanel>
 
+      <GlassPanel title="Health & Society Recommendations" action="Based on live AQI">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {getRecommendations(currentAQI).map(({ icon, title, desc, color }) => (
+            <div key={title} className={`rounded-lg border border-${color}-400/25 bg-${color}-400/5 p-3 flex gap-3`}>
+              <span className="text-xl">{icon}</span>
+              <div>
+                <p className={`text-sm font-semibold text-${color}-300`}>{title}</p>
+                <p className="mt-0.5 text-xs leading-5 text-slate-300">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </GlassPanel>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <GlassPanel title="PM2.5 Trend" action="24-hour view">
           <div className="h-72">
@@ -212,42 +262,7 @@ function AirQualityPage() {
         </GlassPanel>
       </div>
 
-      <GlassPanel title="Health Recommendations" action="AQI based">
-        <div className="space-y-3">
-          {currentAQI.aqi <= 50 && (
-            <div className="rounded-lg border border-emerald-400/30 bg-emerald-400/5 p-3">
-              <p className="font-semibold text-emerald-300">Air Quality is Good</p>
-              <p className="mt-1 text-sm text-emerald-200/80">
-                It's a great day for outdoor activities. Enjoy the fresh air!
-              </p>
-            </div>
-          )}
-          {currentAQI.aqi > 50 && currentAQI.aqi <= 100 && (
-            <div className="rounded-lg border border-amber-400/30 bg-amber-400/5 p-3">
-              <p className="font-semibold text-amber-300">Air Quality is Moderate</p>
-              <p className="mt-1 text-sm text-amber-200/80">
-                Members of sensitive groups may experience respiratory issues during outdoor activities.
-              </p>
-            </div>
-          )}
-          {currentAQI.aqi > 100 && currentAQI.aqi <= 150 && (
-            <div className="rounded-lg border border-orange-400/30 bg-orange-400/5 p-3">
-              <p className="font-semibold text-orange-300">Air Quality is Poor</p>
-              <p className="mt-1 text-sm text-orange-200/80">
-                Everyone may begin to experience health effects. Limit outdoor activities.
-              </p>
-            </div>
-          )}
-          {currentAQI.aqi > 150 && (
-            <div className="rounded-lg border border-red-400/30 bg-red-400/5 p-3">
-              <p className="font-semibold text-red-300">Air Quality is Very Poor</p>
-              <p className="mt-1 text-sm text-red-200/80">
-                Health alert: Everyone should avoid outdoor activities. Stay indoors with air filtration.
-              </p>
-            </div>
-          )}
-        </div>
-      </GlassPanel>
+      <MrGreenChat aqiData={currentAQI} />
     </section>
   )
 }

@@ -1,4 +1,5 @@
 import { Server } from 'socket.io'
+import { checkAQIForUser } from '../services/aqiMonitor.service.js'
 
 let io
 
@@ -14,32 +15,29 @@ export const initSocket = (httpServer) => {
   io.on('connection', (socket) => {
     console.log(`✅ Socket connected: ${socket.id}`)
 
-    // Subscribe to location-based alerts
     socket.on('alerts:subscribe', (data) => {
       const { userId, location } = data
       socket.join(`user:${userId}`)
-      if (location) {
-        socket.join(`location:${location}`)
-      }
-      console.log(`📍 User ${userId} subscribed to alerts`)
+      if (location) socket.join(`location:${location}`)
+      console.log(`📍 User ${userId} subscribed to alerts for ${location}`)
     })
 
-    // Unsubscribe from alerts
+    // Triggered once after login with user's real location
+    socket.on('aqi:check', async ({ lat, lon, city }) => {
+      console.log(`🔍 AQI check requested by ${socket.id} for ${city}`)
+      await checkAQIForUser(socket.id, lat, lon, city)
+    })
+
     socket.on('alerts:unsubscribe', (data) => {
       const { userId, location } = data
       socket.leave(`user:${userId}`)
-      if (location) {
-        socket.leave(`location:${location}`)
-      }
+      if (location) socket.leave(`location:${location}`)
     })
 
-    // AQI subscription
     socket.on('aqi:subscribe', (locationId) => {
       socket.join(`aqi:${locationId}`)
-      console.log(`🌬️ Subscribed to AQI updates for ${locationId}`)
     })
 
-    // Alert acknowledgment
     socket.on('alert:acknowledge', (alertId) => {
       console.log(`✓ Alert ${alertId} acknowledged by ${socket.id}`)
     })

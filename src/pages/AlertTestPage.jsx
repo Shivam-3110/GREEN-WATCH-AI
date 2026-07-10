@@ -1,172 +1,127 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import axios from 'axios';
-import { useNotifications } from '../contexts/NotificationContext';
+import { motion, AnimatePresence } from 'framer-motion'
+import { useNotifications } from '../contexts/NotificationContext'
+import SectionHeader from '../components/ui/SectionHeader'
+
+const ALERT_META = {
+  aqi:      { icon: '🌬️', label: 'Air Quality',   color: 'cyan',   bg: 'bg-cyan-400/10',   border: 'border-cyan-400/25',   text: 'text-cyan-300' },
+  heatwave: { icon: '🌡️', label: 'Heatwave',      color: 'red',    bg: 'bg-red-400/10',    border: 'border-red-400/25',    text: 'text-red-300' },
+  flood:    { icon: '🌊', label: 'Flood',          color: 'blue',   bg: 'bg-blue-400/10',   border: 'border-blue-400/25',   text: 'text-blue-300' },
+  default:  { icon: '⚠️', label: 'Alert',          color: 'amber',  bg: 'bg-amber-400/10',  border: 'border-amber-400/25',  text: 'text-amber-300' },
+}
+
+const severityColor = {
+  critical: 'text-rose-300',
+  high:     'text-red-300',
+  medium:   'text-amber-300',
+  low:      'text-emerald-300',
+}
+
+function getMeta(type) {
+  return ALERT_META[type] ?? ALERT_META.default
+}
 
 export default function AlertTestPage() {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const { alerts, isConnected } = useNotifications();
+  const { alerts, isConnected } = useNotifications()
 
-  const triggerAlert = async (type) => {
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/v1/alerts/test', {
-        type,
-        location: 'Delhi',
-      });
-
-      setResult({
-        success: true,
-        message: `${type} alert triggered successfully!`,
-        data: response.data,
-      });
-    } catch (error) {
-      setResult({
-        success: false,
-        message: error.response?.data?.message || 'Failed to trigger alert',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const alertTypes = [
-    { type: 'aqi', name: 'Air Quality', icon: '🌬️', color: 'bg-blue-500' },
-    { type: 'heatwave', name: 'Heatwave', icon: '🌡️', color: 'bg-red-500' },
-    { type: 'flood', name: 'Flood', icon: '🌊', color: 'bg-cyan-500' },
-    { type: 'random', name: 'Random Alert', icon: '🎲', color: 'bg-purple-500' },
-  ];
+  const grouped = {
+    critical: alerts.filter(a => a.severity === 'critical'),
+    high:     alerts.filter(a => a.severity === 'high'),
+    medium:   alerts.filter(a => a.severity === 'medium'),
+    low:      alerts.filter(a => !a.severity || a.severity === 'low'),
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">🚨 Environmental Alert System</h1>
-          <p className="text-gray-600">Test realtime notifications with Socket.io</p>
-        </motion.div>
+    <section className="space-y-5">
+      <SectionHeader title="Alert System" subtitle="Environmental Alerts" />
 
-        {/* Connection Status */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-1">Connection Status</h2>
-              <p className="text-sm text-gray-600">Socket.io realtime connection</p>
-            </div>
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-              isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}>
-              <div className={`w-3 h-3 rounded-full ${
-                isConnected ? 'bg-green-500' : 'bg-red-500'
-              } animate-pulse`} />
-              <span className="font-medium">{isConnected ? 'Connected' : 'Disconnected'}</span>
-            </div>
+      {/* Status bar */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4 backdrop-blur-xl flex items-center gap-4">
+          <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-red-400'} animate-pulse`} />
+          <div>
+            <p className="text-xs uppercase tracking-widest text-slate-400">Connection</p>
+            <p className={`mt-0.5 text-sm font-semibold ${isConnected ? 'text-emerald-300' : 'text-red-300'}`}>
+              {isConnected ? 'Live — Receiving alerts' : 'Disconnected'}
+            </p>
           </div>
         </div>
 
-        {/* Active Alerts Count */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-1">Active Alerts</h2>
-              <p className="text-sm text-gray-600">Currently showing notifications</p>
-            </div>
-            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-3xl font-bold w-16 h-16 rounded-full flex items-center justify-center">
-              {alerts.length}
-            </div>
-          </div>
+        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4 backdrop-blur-xl">
+          <p className="text-xs uppercase tracking-widest text-slate-400">Active Alerts</p>
+          <p className="mt-1 text-3xl font-bold text-white">{alerts.length}</p>
         </div>
 
-        {/* Trigger Alerts */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Trigger Test Alerts</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {alertTypes.map((alert) => (
-              <motion.button
-                key={alert.type}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => triggerAlert(alert.type)}
-                disabled={loading}
-                className={`${alert.color} text-white rounded-xl p-6 hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <div className="text-4xl mb-2">{alert.icon}</div>
-                <div className="text-lg font-bold">{alert.name}</div>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        {/* Result */}
-        {result && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`rounded-2xl shadow-lg p-6 ${
-              result.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">{result.success ? '✅' : '❌'}</span>
-              <div className="flex-1">
-                <h3 className={`font-bold mb-1 ${result.success ? 'text-green-700' : 'text-red-700'}`}>
-                  {result.success ? 'Success!' : 'Error'}
-                </h3>
-                <p className="text-sm text-gray-700">{result.message}</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Instructions */}
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-3">📋 How It Works</h3>
-          <ul className="space-y-2 text-sm text-gray-700">
-            <li className="flex items-start gap-2">
-              <span>1️⃣</span>
-              <span>Socket.io connects automatically when app loads</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span>2️⃣</span>
-              <span>Click any button above to trigger a test alert</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span>3️⃣</span>
-              <span>Alert appears in top-right corner with realtime animation</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span>4️⃣</span>
-              <span>Click X to dismiss individual alerts or "Clear All" to remove all</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span>5️⃣</span>
-              <span>Alerts auto-expire based on their severity level</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* API Endpoints */}
-        <div className="mt-6 bg-gray-800 text-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold mb-3">🔌 API Endpoints</h3>
-          <div className="space-y-2 font-mono text-xs">
-            <div className="bg-gray-700 rounded p-2">
-              <span className="text-green-400">POST</span> /api/v1/alerts/aqi
-            </div>
-            <div className="bg-gray-700 rounded p-2">
-              <span className="text-green-400">POST</span> /api/v1/alerts/heatwave
-            </div>
-            <div className="bg-gray-700 rounded p-2">
-              <span className="text-green-400">POST</span> /api/v1/alerts/flood
-            </div>
-            <div className="bg-gray-700 rounded p-2">
-              <span className="text-green-400">POST</span> /api/v1/alerts/test
-            </div>
-          </div>
+        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4 backdrop-blur-xl">
+          <p className="text-xs uppercase tracking-widest text-slate-400">Critical</p>
+          <p className="mt-1 text-3xl font-bold text-rose-300">{grouped.critical.length}</p>
         </div>
       </div>
-    </div>
-  );
+
+      {/* Alert feed */}
+      {alerts.length === 0 ? (
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-12 text-center">
+          <p className="text-4xl mb-3">✅</p>
+          <p className="text-lg font-semibold text-slate-300">No active alerts</p>
+          <p className="mt-1 text-sm text-slate-500">All environmental conditions are within safe limits.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <AnimatePresence>
+            {alerts.map((alert, i) => {
+              const meta = getMeta(alert.type)
+              return (
+                <motion.div
+                  key={alert.id ?? i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ delay: i * 0.04 }}
+                  className={`rounded-lg border ${meta.border} ${meta.bg} p-4 flex items-start gap-4 backdrop-blur-xl`}
+                >
+                  <span className="text-2xl mt-0.5">{meta.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className={`text-sm font-semibold ${meta.text}`}>{meta.label}</p>
+                      {alert.severity && (
+                        <span className={`text-xs font-medium uppercase tracking-wider ${severityColor[alert.severity] ?? 'text-slate-400'}`}>
+                          {alert.severity}
+                        </span>
+                      )}
+                      {alert.location && (
+                        <span className="text-xs text-slate-500">📍 {alert.location}</span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-sm text-slate-300 leading-relaxed">
+                      {alert.message ?? 'Environmental alert detected in your area.'}
+                    </p>
+                    {alert.timestamp && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        {new Date(alert.timestamp).toLocaleTimeString()}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Info cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { icon: '🌬️', title: 'Air Quality Alerts', desc: 'Triggered when AQI exceeds safe thresholds in your area.' },
+          { icon: '🌡️', title: 'Heatwave Warnings', desc: 'Issued when temperatures rise to dangerous levels.' },
+          { icon: '🌊', title: 'Flood Advisories', desc: 'Activated during heavy rainfall or rising water levels.' },
+          { icon: '🔔', title: 'Realtime Updates', desc: 'All alerts are pushed instantly via live socket connection.' },
+        ].map(({ icon, title, desc }) => (
+          <div key={title} className="rounded-lg border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+            <p className="text-2xl mb-2">{icon}</p>
+            <p className="text-sm font-semibold text-slate-200">{title}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
 }

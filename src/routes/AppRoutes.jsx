@@ -3,7 +3,6 @@ import DashboardLayout from '../layouts/DashboardLayout'
 import DashboardPage from '../pages/DashboardPage'
 import AirQualityPage from '../pages/AirQualityPage'
 import MapPage from '../pages/MapPage'
-import ChatPage from '../pages/ChatPage'
 import CarbonCalculatorPage from '../pages/CarbonCalculatorPage'
 import WasteDetectionPage from '../pages/WasteDetectionPage'
 import AlertTestPage from '../pages/AlertTestPage'
@@ -49,13 +48,13 @@ function AppRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/air-quality" element={<AirQualityPage />} />
         <Route path="/map-intelligence" element={<MapPage />} />
-        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/alerts" element={<AlertTestPage />} />
         <Route path="/carbon-calculator" element={<CarbonCalculatorPage />} />
         <Route path="/waste-detection" element={<WasteDetectionPage />} />
-        <Route path="/alerts" element={<AlertTestPage />} />
         <Route path="/eco-challenge" element={<EcoChallengePage />} />
         <Route path="/city-simulator" element={<CitySimulatorPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/chat" element={<Navigate to="/alerts" replace />} />
       </Route>
 
       {/* 404 Route */}
