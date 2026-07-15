@@ -7,11 +7,8 @@ class SocketService {
     this.alertListeners = [];
   }
 
-  connect() {
-    if (this.socket?.connected) {
-      console.log('Socket already connected');
-      return;
-    }
+  connect(onConnect, onDisconnect) {
+    if (this.socket?.connected) return;
 
     this.socket = io('http://localhost:5000', {
       transports: ['websocket'],
@@ -19,28 +16,24 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('✅ Socket connected:', this.socket.id);
       this.isConnected = true;
+      onConnect?.();
     });
 
     this.socket.on('disconnect', () => {
-      console.log('❌ Socket disconnected');
       this.isConnected = false;
+      onDisconnect?.();
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
     });
 
-    // Listen for environmental alerts
     this.socket.on('environmental:alert', (alert) => {
-      console.log('🚨 Alert received:', alert);
       this.notifyAlertListeners(alert);
     });
 
-    // Listen for bulk alerts
     this.socket.on('environmental:alerts:bulk', (alerts) => {
-      console.log('🚨 Bulk alerts received:', alerts.length);
       alerts.forEach(alert => this.notifyAlertListeners(alert));
     });
   }
@@ -98,7 +91,7 @@ class SocketService {
   }
 
   getConnectionStatus() {
-    return this.isConnected;
+    return this.socket?.connected ?? false;
   }
 }
 

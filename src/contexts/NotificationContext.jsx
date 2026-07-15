@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import socketService from '../services/socketService';
 import { getLocationCoordinates } from '../utils/location';
 
@@ -13,28 +13,31 @@ export const useNotifications = () => {
 export const NotificationProvider = ({ children }) => {
   const [alerts, setAlerts]           = useState([]);
   const [isConnected, setIsConnected] = useState(false);
+  const checkedRef = useRef(false); // prevent double-emit from StrictMode
 
   useEffect(() => {
-    socketService.connect();
+    if (checkedRef.current) return;
+    checkedRef.current = true;
 
+    socketService.connect(
+      () => setIsConnected(true),
+      () => setIsConnected(false)
+    );
     const userId = localStorage.getItem('userId') || 'guest';
 
-    // Subscribe to user's real location city and trigger one-time AQI check
     getLocationCoordinates().then(({ lat, lon, city }) => {
-      const location = city || localStorage.getItem('userLocation') || 'Delhi'
-      socketService.subscribeToAlerts(userId, location)
-      // Emit once — backend fetches AQI and fires alert if threshold crossed
-      socketService.socket?.emit('aqi:check', { lat, lon, city: location })
-    })
+      const location = city || localStorage.getItem('userLocation') || 'Delhi';
+      socketService.subscribeToAlerts(userId, location);
 
-    const checkConnection = setInterval(() => {
-      setIsConnected(socketService.getConnectionStatus());
-    }, 1000);
+      const emitCheck = () => socketService.socket?.emit('aqi:check', { lat, lon, city: location });
+      if (socketService.getConnectionStatus()) {
+        emitCheck();
+      } else {
+        socketService.socket?.once('connect', emitCheck);
+      }
+    });
 
-    return () => {
-      clearInterval(checkConnection);
-      socketService.disconnect();
-    };
+    return () => {};
   }, []);
 
   useEffect(() => {

@@ -22,10 +22,13 @@ export const initSocket = (httpServer) => {
       console.log(`📍 User ${userId} subscribed to alerts for ${location}`)
     })
 
-    // Triggered once after login with user's real location
+    const checked = new Set(); // guard against duplicate aqi:check from same socket
+
     socket.on('aqi:check', async ({ lat, lon, city }) => {
+      if (checked.has(socket.id)) return;
+      checked.add(socket.id);
       console.log(`🔍 AQI check requested by ${socket.id} for ${city}`)
-      await checkAQIForUser(socket.id, lat, lon, city)
+      await checkAQIForUser(socket.id, lat, lon, city, socket)
     })
 
     socket.on('alerts:unsubscribe', (data) => {

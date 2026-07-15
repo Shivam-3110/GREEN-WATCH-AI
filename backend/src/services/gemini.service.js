@@ -128,6 +128,33 @@ Data: ${JSON.stringify(pollutionData, null, 2)}`
     }
   }
 
+  async predictAQI({ pollution, treeCount, traffic, temperature, realAQI, trends }) {
+    try {
+      const prompt = `You are an environmental AI. Given these city simulation parameters, predict the AQI value that would result after 6 months if these conditions persist or follow the described trends.
+
+Current parameters:
+- Industrial Pollution: ${Math.round(pollution * 100)}%
+- Tree Coverage: ${treeCount} trees (out of 50 max)
+- Traffic Density: ${Math.round(traffic * 100)}%
+- Temperature: ${temperature}°C
+- Current Real AQI (baseline): ${realAQI ?? 'unknown'}
+
+Trends over last changes:
+${trends.map(t => `- ${t}`).join('\n')}
+
+Respond ONLY with a valid JSON object in this exact format, no markdown, no explanation:
+{"predictedAQI": <number>, "insight": "<one sentence about the main driver of this prediction>"}`
+
+      const result = await this.model.generateContent(prompt)
+      const text = result.response.text().trim()
+      const json = JSON.parse(text.replace(/```json|```/g, '').trim())
+      return { predictedAQI: Math.round(json.predictedAQI), insight: json.insight }
+    } catch (error) {
+      console.error('Gemini predictAQI error:', error)
+      throw new ApiError(500, 'Failed to predict AQI')
+    }
+  }
+
   formatHistory(history) {
     return history.map((msg) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',

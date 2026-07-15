@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const OPENWEATHER_API = 'https://api.openweathermap.org/data/2.5/air_pollution'
 const FORECAST_API = 'https://api.openweathermap.org/data/2.5/air_pollution/forecast'
+const WEATHER_API = 'https://api.openweathermap.org/data/2.5/weather'
 
 const getAQIDescription = (aqi) => {
   const levels = {
@@ -25,15 +26,43 @@ const aqiIndexToUSAQI = (aqiIndex) => {
   return conversion[aqiIndex] || 50
 }
 
-export const getCurrentAQI = async (lat, lon) => {
+const getCurrentWeather = async (lat, lon) => {
   try {
-    const response = await axios.get(OPENWEATHER_API, {
+    const response = await axios.get(WEATHER_API, {
       params: {
         lat,
         lon,
         appid: process.env.OPENWEATHER_API_KEY,
+        units: 'metric',
       },
     })
+
+    const rain = response.data.rain || {}
+
+    return {
+      temperature: Math.round(response.data.main?.temp * 10) / 10,
+      humidity: response.data.main?.humidity,
+      windSpeed: response.data.wind?.speed,
+      rainfall: rain['1h'] ?? rain['3h'] ?? 0,
+    }
+  } catch (error) {
+    console.warn('Weather snapshot unavailable:', error.message)
+    return {}
+  }
+}
+
+export const getCurrentAQI = async (lat, lon) => {
+  try {
+    const [response, weather] = await Promise.all([
+      axios.get(OPENWEATHER_API, {
+        params: {
+          lat,
+          lon,
+          appid: process.env.OPENWEATHER_API_KEY,
+        },
+      }),
+      getCurrentWeather(lat, lon),
+    ])
 
     const { list } = response.data
     if (!list || list.length === 0) throw new Error('No AQI data available')
@@ -50,6 +79,7 @@ export const getCurrentAQI = async (lat, lon) => {
       no2: Math.round(components.no2 * 10) / 10,
       so2: Math.round(components.so2 * 10) / 10,
       co: Math.round(components.co * 10) / 10,
+      ...weather,
       ...getAQIDescription(aqi),
       timestamp: new Date(data.dt * 1000),
     }

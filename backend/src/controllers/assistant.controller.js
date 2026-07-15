@@ -96,6 +96,21 @@ export const getPollutionInsights = asyncHandler(async (req, res) => {
   })
 })
 
+export const predictSimulatorAQI = asyncHandler(async (req, res) => {
+  const { pollution, treeCount, traffic, temperature, realAQI, trends } = req.body
+
+  const result = await geminiService.predictAQI({
+    pollution: parseFloat(pollution) || 0.5,
+    treeCount: parseInt(treeCount) || 20,
+    traffic: parseFloat(traffic) || 0.5,
+    temperature: parseInt(temperature) || 30,
+    realAQI: realAQI ?? null,
+    trends: Array.isArray(trends) ? trends : [],
+  })
+
+  res.status(200).json({ success: true, data: result })
+})
+
 export const getQuickTips = asyncHandler(async (_req, res) => {
   const tips = [
     {

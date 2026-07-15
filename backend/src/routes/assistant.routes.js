@@ -5,6 +5,7 @@ import {
   getAdviceByCategory,
   getPollutionInsights,
   getQuickTips,
+  predictSimulatorAQI,
 } from '../controllers/assistant.controller.js'
 import { authGuard } from '../middlewares/auth.middleware.js'
 import {
@@ -34,5 +35,7 @@ router.post(
 )
 
 router.get('/quick-tips', authGuard, getQuickTips)
+
+router.post('/predict-aqi', predictSimulatorAQI)
 
 export default router

@@ -1,17 +1,31 @@
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import {
-  Building,
-  Tree,
-  Road,
-  Car,
-  PollutionParticles,
-  HeatHaze,
-  Ground,
-  Sky,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  Building, Tree, Road, Car,
+  PollutionParticles, HeatHaze, Ground, Sky,
 } from '../components/3d/CityComponents';
+import { getLocationCoordinates } from '../utils/location';
+import apiClient from '../services/apiClient';
+import { predictSixMonthAQI } from '../simulation/PredictionEngine';
+import { getAQICategory } from '../simulation/EnvironmentalScore';
+
+const tooltipStyle = {
+  background: 'rgba(3, 8, 16, 0.94)',
+  border: '1px solid rgba(103, 232, 249, 0.22)',
+  borderRadius: 8,
+  color: '#ecfeff',
+};
 
 export default function CitySimulatorPage() {
   const [pollution, setPollution] = useState(0.5);
@@ -19,24 +33,46 @@ export default function CitySimulatorPage() {
   const [traffic, setTraffic] = useState(0.5);
   const [temperature, setTemperature] = useState(30);
   const [showStats, setShowStats] = useState(true);
+  const [realAQI, setRealAQI] = useState(null);
+  const [city, setCity] = useState(null);
 
-  // Calculate AQI based on parameters
-  const calculateAQI = () => {
-    const baseAQI = 150;
-    const pollutionImpact = pollution * 200;
-    const treeReduction = (treeCount / 50) * 50;
-    const trafficImpact = traffic * 100;
-    
-    return Math.round(Math.max(0, baseAQI + pollutionImpact - treeReduction + trafficImpact));
-  };
 
-  const aqi = calculateAQI();
-  const aqiCategory = 
-    aqi <= 50 ? { label: 'Good', color: 'text-green-500' } :
-    aqi <= 100 ? { label: 'Moderate', color: 'text-yellow-500' } :
-    aqi <= 150 ? { label: 'Unhealthy (Sensitive)', color: 'text-orange-500' } :
-    aqi <= 200 ? { label: 'Unhealthy', color: 'text-red-500' } :
-    { label: 'Very Unhealthy', color: 'text-purple-500' };
+  useEffect(() => {
+    getLocationCoordinates().then(async ({ lat, lon, city }) => {
+      setCity(city);
+      try {
+        const res = await apiClient.get('/air-quality/current', { params: { lat, lon } });
+        if (res.data.success) setRealAQI(res.data.data);
+      } catch {}
+    });
+  }, []);
+
+  const simulation = useMemo(() => {
+    const currentAQI = realAQI?.aqi ?? 150;
+    return predictSixMonthAQI({
+      currentAQI,
+      pollutionRatio: pollution,
+      treeCount,
+      trafficRatio: traffic,
+      temperatureC: temperature,
+      pollutants: {
+        pm25: realAQI?.pm25,
+        pm10: realAQI?.pm10,
+        no2: realAQI?.no2,
+        o3: realAQI?.o3,
+        co: realAQI?.co,
+      },
+      weather: {
+        humidityPercent: realAQI?.humidity,
+        windSpeedMs: realAQI?.windSpeed,
+        rainfallMmPerHour: realAQI?.rainfall,
+        temperatureC: realAQI?.temperature,
+        timestamp: realAQI?.timestamp,
+      },
+    });
+  }, [pollution, treeCount, traffic, temperature, realAQI]);
+
+  const currentCategory = getAQICategory(simulation.currentAQI);
 
   // Generate city layout
   const generateBuildings = () => {
@@ -270,11 +306,48 @@ export default function CitySimulatorPage() {
             </button>
           </div>
 
-          {/* AQI Display */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 mb-4">
-            <div className="text-sm text-gray-400 mb-1">Air Quality Index</div>
-            <div className={`text-4xl font-bold ${aqiCategory.color}`}>{aqi}</div>
-            <div className={`text-sm ${aqiCategory.color}`}>{aqiCategory.label}</div>
+          {/* Real AQI */}
+          {realAQI && (
+            <div className="bg-gradient-to-br from-cyan-900/40 to-cyan-800/20 rounded-xl p-4 mb-3 border border-cyan-500/20">
+              <div className="text-xs text-cyan-400 mb-1">📍 {city ?? 'Your Location'} — Live AQI</div>
+              <div className={`text-4xl font-bold ${currentCategory.color}`}>{realAQI.aqi}</div>
+              <div className="flex gap-3 mt-2 text-xs text-gray-400">
+                <span>PM2.5: <span className="text-white">{realAQI.pm25}</span></span>
+                <span>PM10: <span className="text-white">{realAQI.pm10}</span></span>
+                <span>NO₂: <span className="text-white">{realAQI.no2}</span></span>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/30 rounded-xl p-4 mb-4 border border-indigo-500/30">
+            <div className="text-sm text-indigo-300 mb-1">Predicted AQI <span className="text-xs text-gray-500">(6-month deterministic model)</span></div>
+            <div className={`text-4xl font-bold ${simulation.category.color}`}>{simulation.predictedAQI}</div>
+            <div className="text-xs text-gray-400 mt-2">{simulation.category.label}</div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-slate-900/70 rounded-lg p-3 border border-white/10">
+              <div className="text-xs text-gray-400">Confidence</div>
+              <div className="text-2xl font-bold text-cyan-300">{simulation.confidence.score}%</div>
+              <div className="text-[11px] leading-4 text-gray-500">{simulation.confidence.reason}</div>
+            </div>
+            <div className="bg-slate-900/70 rounded-lg p-3 border border-white/10">
+              <div className="text-xs text-gray-400">Pressure Score</div>
+              <div className="text-2xl font-bold text-amber-300">{simulation.pressureScore}/100</div>
+              <div className="text-[11px] text-gray-500">{simulation.pressureInterpretation}</div>
+            </div>
+          </div>
+
+          <div className="h-44 mb-4 rounded-xl border border-white/10 bg-black/30 p-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={simulation.monthlyTrend} margin={{ left: -22, right: 8, top: 10, bottom: 0 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="4 8" />
+                <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Line type="monotone" dataKey="aqi" stroke="#67e8f9" dot={{ r: 3 }} strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
           {/* Impact Metrics */}
@@ -282,7 +355,7 @@ export default function CitySimulatorPage() {
             <div className="bg-gradient-to-br from-green-900/30 to-green-800/30 rounded-lg p-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm">🌳 Tree Impact</span>
-                <span className="font-bold text-green-400">-{Math.round((treeCount / 50) * 50)} AQI</span>
+                <span className="font-bold text-green-400">{simulation.impactBreakdown.trees} AQI</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
                 <div
@@ -295,7 +368,7 @@ export default function CitySimulatorPage() {
             <div className="bg-gradient-to-br from-red-900/30 to-red-800/30 rounded-lg p-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm">🏭 Pollution</span>
-                <span className="font-bold text-red-400">+{Math.round(pollution * 200)} AQI</span>
+                <span className="font-bold text-red-400">+{simulation.impactBreakdown.industrial} AQI</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
                 <div
@@ -308,7 +381,7 @@ export default function CitySimulatorPage() {
             <div className="bg-gradient-to-br from-orange-900/30 to-orange-800/30 rounded-lg p-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm">🚗 Traffic</span>
-                <span className="font-bold text-orange-400">+{Math.round(traffic * 100)} AQI</span>
+                <span className="font-bold text-orange-400">+{simulation.impactBreakdown.traffic} AQI</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
                 <div
@@ -322,8 +395,26 @@ export default function CitySimulatorPage() {
               <div className="flex justify-between items-center">
                 <span className="text-sm">🌡️ Heat Impact</span>
                 <span className="font-bold text-purple-400">
-                  {temperature > 35 ? 'High' : temperature > 30 ? 'Medium' : 'Low'}
+                  {simulation.impactBreakdown.temperature >= 10 ? 'High' : simulation.impactBreakdown.temperature > 2 ? 'Medium' : 'Low'}
                 </span>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-cyan-900/30 to-cyan-800/30 rounded-lg p-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Weather Impact</span>
+                <span className="font-bold text-cyan-300">
+                  {simulation.impactBreakdown.wind + simulation.impactBreakdown.rain + simulation.impactBreakdown.humidity} AQI
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-slate-900/70 to-slate-800/50 rounded-lg p-3">
+              <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
+                <span>Pollutants: <b className="text-white">{simulation.impactBreakdown.pollutants}</b></span>
+                <span>Season: <b className="text-white">{simulation.impactBreakdown.seasonalAverage}</b></span>
+                <span>Wind: <b className="text-white">{simulation.impactBreakdown.wind}</b></span>
+                <span>Rain: <b className="text-white">{simulation.impactBreakdown.rain}</b></span>
               </div>
             </div>
           </div>
@@ -332,11 +423,9 @@ export default function CitySimulatorPage() {
           <div className="mt-4 p-3 bg-cyan-900/30 rounded-lg border border-cyan-500/20">
             <div className="text-sm font-bold text-cyan-400 mb-2">💡 Recommendations</div>
             <ul className="text-xs space-y-1 text-gray-300">
-              {aqi > 150 && <li>• Reduce industrial emissions</li>}
-              {treeCount < 30 && <li>• Plant more trees for better air quality</li>}
-              {traffic > 0.7 && <li>• Promote public transportation</li>}
-              {temperature > 40 && <li>• Implement cooling strategies</li>}
-              {aqi <= 100 && <li>• Great job! Maintain current levels</li>}
+              {simulation.recommendations.map((recommendation) => (
+                <li key={recommendation}>• {recommendation}</li>
+              ))}
             </ul>
           </div>
         </motion.div>

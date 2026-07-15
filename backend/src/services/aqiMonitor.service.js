@@ -1,30 +1,45 @@
+import axios from 'axios'
 import { getCurrentAQI } from './airQuality.service.js'
-import { createAQIAlert, emitAlert } from './environmentalAlert.service.js'
+import { createAQIAlert, createHeatwaveAlert } from './environmentalAlert.service.js'
 
-const getSeverityBand = (aqi) => {
-  if (aqi >= 301) return 'emergency'
-  if (aqi >= 201) return 'critical'
-  if (aqi >= 151) return 'warning-high'
-  if (aqi >= 101) return 'warning-low'
-  return 'safe'
+const OPENWEATHER_TEMP_API = 'https://api.openweathermap.org/data/2.5/weather'
+
+const getCurrentTemp = async (lat, lon) => {
+  try {
+    const res = await axios.get(OPENWEATHER_TEMP_API, {
+      params: { lat, lon, appid: process.env.OPENWEATHER_API_KEY, units: 'metric' },
+    })
+    return res.data.main.temp
+  } catch {
+    return null
+  }
 }
 
-// Called once when user connects — checks their location and fires alert if needed
-export const checkAQIForUser = async (socketId, lat, lon, city) => {
-  try {
-    const data = await getCurrentAQI(lat, lon)
-    const aqi  = data.aqi
-    const band = getSeverityBand(aqi)
+// Called once when user connects — emits alerts only to that specific socket
+export const checkAQIForUser = async (socketId, lat, lon, city, socket) => {
+  const location = city || 'Your Location'
+  const emit = (alert) => socket.emit('environmental:alert', alert) // only to this user
 
-    if (aqi <= 50) {
-      console.log(`✅ AQI safe for ${city} (${aqi}) — no alert`)
-      return
+  try {
+    const [aqiData, temp] = await Promise.all([
+      getCurrentAQI(lat, lon),
+      getCurrentTemp(lat, lon),
+    ])
+
+    const aqi = aqiData.aqi
+
+    if (aqi > 50) {
+      emit(createAQIAlert(location, aqi, 'PM2.5'))
+      console.log(`🚨 AQI alert → ${socketId} for ${location}: AQI=${aqi}`)
+    } else {
+      console.log(`✅ AQI safe for ${location} (${aqi})`)
     }
 
-    const alert = createAQIAlert(city || 'Your Location', aqi, 'PM2.5')
-    emitAlert(alert) // broadcast to all connected clients
-    console.log(`🚨 AQI alert fired for ${city}: AQI=${aqi} (${band})`)
+    if (temp !== null && temp >= 35) {
+      emit(createHeatwaveAlert(location, Math.round(temp)))
+      console.log(`🌡️ Heatwave alert → ${socketId} for ${location}: ${temp}°C`)
+    }
   } catch (err) {
-    console.warn(`⚠️  AQI check failed for socket ${socketId}:`, err.message)
+    console.warn(`⚠️  Check failed for socket ${socketId}:`, err.message)
   }
 }
