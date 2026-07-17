@@ -1,5 +1,7 @@
 export { default as User } from './User.model.js'
 export { default as CarbonScore } from './CarbonScore.model.js'
+export { default as CarbonProfile } from './CarbonProfile.model.js'
+export { default as CarbonHistory } from './CarbonHistory.model.js'
 export { default as PollutionData } from './PollutionData.model.js'
 export { default as WasteDetection } from './WasteDetection.model.js'
 export { default as EcoChallenge } from './EcoChallenge.model.js'

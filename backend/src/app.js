@@ -4,6 +4,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import apiRoutes from './routes/index.js'
+import carbonRoutes from './routes/carbon.routes.js'
 import { notFoundHandler } from './middlewares/notFound.middleware.js'
 import { errorHandler } from './middlewares/error.middleware.js'
 
@@ -24,6 +25,7 @@ app.get('/health', (_req, res) => {
 })
 
 app.use('/api/v1', apiRoutes)
+app.use('/api/carbon', carbonRoutes)
 
 app.use(notFoundHandler)
 app.use(errorHandler)

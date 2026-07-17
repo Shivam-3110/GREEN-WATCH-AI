@@ -4,11 +4,14 @@ import ApiError from '../utils/ApiError.js'
 class GeminiService {
   constructor() {
     if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not configured')
+      this.isConfigured = false
+      this.genAI = null
+      this.model = null
+    } else {
+      this.isConfigured = true
+      this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
     }
-
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     this.systemPrompt = `You are Mr. Green, a friendly and knowledgeable environmental AI assistant embedded in the GREEN-WATCH AI platform. You are an expert on:
 
@@ -33,6 +36,10 @@ You care deeply about the planet and the people living on it.`
   }
 
   async chat(userMessage, conversationHistory = []) {
+    if (!this.isConfigured) {
+      throw new ApiError(503, 'Gemini API key is not configured')
+    }
+
     try {
       const chat = this.model.startChat({
         history: this.formatHistory(conversationHistory),
@@ -63,6 +70,10 @@ You care deeply about the planet and the people living on it.`
   }
 
   async getEnvironmentalAdvice(category) {
+    if (!this.isConfigured) {
+      throw new ApiError(503, 'Gemini API key is not configured')
+    }
+
     const prompts = {
       carbon: 'Provide 5 practical tips to reduce personal carbon footprint in daily life.',
       pollution: 'Explain the main sources of air pollution and how individuals can help reduce it.',
@@ -87,6 +98,10 @@ You care deeply about the planet and the people living on it.`
   }
 
   async analyzeCarbonFootprint(activities) {
+    if (!this.isConfigured) {
+      throw new ApiError(503, 'Gemini API key is not configured')
+    }
+
     try {
       const prompt = `Analyze this carbon footprint data and provide:
 1. Total estimated CO2 emissions
@@ -107,7 +122,44 @@ Activities: ${JSON.stringify(activities, null, 2)}`
     }
   }
 
+  async generateCarbonIntelligence(calculatedValues) {
+    if (!this.isConfigured) {
+      throw new ApiError(503, 'Gemini API key is not configured')
+    }
+
+    try {
+      const prompt = `Analyze this already-calculated carbon footprint. Do not recalculate emissions. Use only these values to produce practical sustainability guidance.
+
+Calculated values:
+${JSON.stringify(calculatedValues, null, 2)}
+
+Respond ONLY with a valid JSON object, no markdown, in this format:
+{
+  "carbonSummary": "2 concise sentences",
+  "topEmissionSources": ["source 1", "source 2", "source 3"],
+  "strengths": ["strength 1", "strength 2"],
+  "areasForImprovement": ["area 1", "area 2", "area 3"],
+  "recommendations": [
+    { "title": "short action", "detail": "specific recommendation", "estimatedAnnualSavingsKg": 120 }
+  ],
+  "monthlyReductionGoalKg": 75,
+  "motivationalMessage": "one encouraging sentence"
+}`
+
+      const result = await this.model.generateContent(prompt)
+      const text = result.response.text().trim().replace(/```json|```/g, '').trim()
+      return JSON.parse(text)
+    } catch (error) {
+      console.error('Gemini carbon intelligence error:', error)
+      throw new ApiError(500, 'Failed to generate carbon intelligence')
+    }
+  }
+
   async getPollutionInsights(pollutionData) {
+    if (!this.isConfigured) {
+      throw new ApiError(503, 'Gemini API key is not configured')
+    }
+
     try {
       const prompt = `Based on this air quality data, provide:
 1. Health impact assessment
@@ -129,6 +181,10 @@ Data: ${JSON.stringify(pollutionData, null, 2)}`
   }
 
   async predictAQI({ pollution, treeCount, traffic, temperature, realAQI, trends }) {
+    if (!this.isConfigured) {
+      throw new ApiError(503, 'Gemini API key is not configured')
+    }
+
     try {
       const prompt = `You are an environmental AI. Given these city simulation parameters, predict the AQI value that would result after 6 months if these conditions persist or follow the described trends.
 
