@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { animate, motion } from 'framer-motion'
 import {
   Bar,
   BarChart,
@@ -15,7 +15,7 @@ import {
 } from 'recharts'
 import apiClient from '../services/apiClient'
 
-const CATEGORY_COLORS = ['#34d399', '#22d3ee', '#a78bfa', '#fbbf24', '#fb7185', '#60a5fa']
+const CATEGORY_COLORS = ['#34d399', '#22d3ee', '#8b5cf6', '#f59e0b', '#f43f5e', '#60a5fa']
 
 const initialForm = {
   transportation: {
@@ -46,7 +46,9 @@ const initialForm = {
 const fieldGroups = [
   {
     title: 'Transportation',
-    eyebrow: 'Mobility and flights',
+    eyebrow: 'Mobility profile',
+    description: 'Daily distance, primary vehicle, and flight habits.',
+    icon: 'route',
     fields: [
       {
         type: 'select',
@@ -70,11 +72,71 @@ const fieldGroups = [
     ],
   },
   {
-    title: 'Home Energy',
-    eyebrow: 'Electricity and cooking',
+    title: 'Electricity',
+    eyebrow: 'Home energy',
+    description: 'Use either consumption or your monthly bill estimate.',
+    icon: 'bolt',
     fields: [
       { type: 'number', section: 'electricity', name: 'monthlyKWh', label: 'Monthly electricity', suffix: 'kWh' },
       { type: 'number', section: 'electricity', name: 'monthlyBillInr', label: 'Monthly electricity bill', suffix: 'INR' },
+    ],
+  },
+  {
+    title: 'Food',
+    eyebrow: 'Diet pattern',
+    description: 'Your regular food habit for carbon intensity.',
+    icon: 'leaf',
+    fields: [
+      {
+        type: 'select',
+        section: 'food',
+        name: 'habit',
+        label: 'Food habit',
+        options: [
+          ['vegan', 'Vegan'],
+          ['vegetarian', 'Vegetarian'],
+          ['eggetarian', 'Eggetarian'],
+          ['mixed_diet', 'Mixed Diet'],
+          ['heavy_meat', 'Heavy Meat Consumption'],
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Waste',
+    eyebrow: 'Material footprint',
+    description: 'Plastic usage and recycling behavior.',
+    icon: 'recycle',
+    fields: [
+      {
+        type: 'select',
+        section: 'waste',
+        name: 'plasticUsage',
+        label: 'Plastic usage',
+        options: [
+          ['low', 'Low'],
+          ['medium', 'Medium'],
+          ['high', 'High'],
+        ],
+      },
+      { type: 'toggle', section: 'waste', name: 'recycles', label: 'I recycle household waste' },
+    ],
+  },
+  {
+    title: 'Water',
+    eyebrow: 'Daily usage',
+    description: 'Estimated household water consumption per person.',
+    icon: 'drop',
+    fields: [
+      { type: 'number', section: 'water', name: 'litersPerDay', label: 'Water consumed per day', suffix: 'litres' },
+    ],
+  },
+  {
+    title: 'Cooking Fuel',
+    eyebrow: 'Kitchen energy',
+    description: 'Primary cooking fuel used at home.',
+    icon: 'flame',
+    fields: [
       {
         type: 'select',
         section: 'cooking',
@@ -91,71 +153,667 @@ const fieldGroups = [
       },
     ],
   },
-  {
-    title: 'Lifestyle',
-    eyebrow: 'Food, waste, and water',
-    fields: [
-      {
-        type: 'select',
-        section: 'food',
-        name: 'habit',
-        label: 'Food habit',
-        options: [
-          ['vegan', 'Vegan'],
-          ['vegetarian', 'Vegetarian'],
-          ['eggetarian', 'Eggetarian'],
-          ['mixed_diet', 'Mixed Diet'],
-          ['heavy_meat', 'Heavy Meat Consumption'],
-        ],
-      },
-      {
-        type: 'select',
-        section: 'waste',
-        name: 'plasticUsage',
-        label: 'Plastic usage',
-        options: [
-          ['low', 'Low'],
-          ['medium', 'Medium'],
-          ['high', 'High'],
-        ],
-      },
-      { type: 'toggle', section: 'waste', name: 'recycles', label: 'I recycle household waste' },
-      { type: 'number', section: 'water', name: 'litersPerDay', label: 'Water consumed per day', suffix: 'litres' },
-    ],
-  },
 ]
 
-const formatCategory = (value) => value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+const iconPaths = {
+  route: (
+    <>
+      <path d="M6 18c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3Z" />
+      <path d="M18 12c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3Z" />
+      <path d="M8.3 13.1 15.7 10" />
+    </>
+  ),
+  bolt: <path d="M13 2 5 14h6l-1 8 9-13h-6l0-7Z" />,
+  leaf: (
+    <>
+      <path d="M5 19c9 0 14-5 14-14v0h-4C8 5 5 8 5 15v4Z" />
+      <path d="M5 19c3-6 7-9 14-14" />
+    </>
+  ),
+  recycle: (
+    <>
+      <path d="m7 7 2-4 2 4" />
+      <path d="M9 3v7" />
+      <path d="m17 10 4 2-4 2" />
+      <path d="M21 12h-7" />
+      <path d="m7 17-4-2 4-2" />
+      <path d="M3 15h7" />
+    </>
+  ),
+  drop: <path d="M12 21c-3.3 0-6-2.5-6-5.8C6 11.4 12 3 12 3s6 8.4 6 12.2c0 3.3-2.7 5.8-6 5.8Z" />,
+  flame: <path d="M12 22c-3.9 0-7-2.9-7-6.7 0-2.7 1.4-5 4.1-7C10.7 7 12 5.2 12 2c4 2.5 7 6.4 7 12 0 4.5-3.1 8-7 8Z" />,
+  calendar: (
+    <>
+      <path d="M7 3v4" />
+      <path d="M17 3v4" />
+      <path d="M4 9h16" />
+      <path d="M5 5h14v16H5z" />
+    </>
+  ),
+  chart: (
+    <>
+      <path d="M4 19V5" />
+      <path d="M4 19h16" />
+      <path d="M8 15v-4" />
+      <path d="M12 15V8" />
+      <path d="M16 15v-6" />
+    </>
+  ),
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v3" />
+      <path d="M12 19v3" />
+      <path d="M2 12h3" />
+      <path d="M19 12h3" />
+    </>
+  ),
+  spark: (
+    <>
+      <path d="M12 2v6" />
+      <path d="M12 16v6" />
+      <path d="M2 12h6" />
+      <path d="M16 12h6" />
+      <path d="m5 5 4 4" />
+      <path d="m15 15 4 4" />
+      <path d="m19 5-4 4" />
+      <path d="m9 15-4 4" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M12 3v11" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 20h14" />
+    </>
+  ),
+}
 
-function MetricCard({ label, value, helper }) {
+const formatCategory = (value = '') => value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+
+const getDynamicTip = (activeGroup, formData) => {
+  const tips = [
+    formData.transportation.vehicleType === 'public_transport' || formData.transportation.vehicleType === 'bicycle' || formData.transportation.vehicleType === 'walking'
+      ? 'Your mobility profile is already leaning low-carbon. Keep daily short trips car-light where possible.'
+      : 'Transport usually responds fastest to small changes: one low-car day per week can shift your monthly footprint.',
+    formData.electricity.monthlyKWh > 300
+      ? 'Your electricity usage looks like a strong reduction opportunity. Start with cooling, standby loads, and efficient lighting.'
+      : 'Your electricity profile is measured. Rooftop solar or green supply can make the next improvement meaningful.',
+    formData.food.habit === 'vegan' || formData.food.habit === 'vegetarian'
+      ? 'Plant-forward diets typically carry a lower carbon load. Focus on reducing food waste for the next gain.'
+      : 'Swapping a few meat-heavy meals for plant-forward meals is one of the simplest lifestyle carbon wins.',
+    formData.waste.recycles
+      ? 'Recycling is active in your profile. The next step is reducing single-use purchases before they become waste.'
+      : 'Starting a simple dry-waste separation routine can improve both emissions and your eco score.',
+    formData.water.litersPerDay > 160
+      ? 'Water use is above the common urban baseline. Low-flow fixtures and shorter high-flow routines can help.'
+      : 'Your water estimate is controlled. Keep an eye on leaks, because small leaks quietly add up.',
+    formData.cooking.fuelType === 'induction' || formData.cooking.fuelType === 'electric'
+      ? 'Electric cooking pairs well with cleaner electricity. It is a good foundation for long-term reductions.'
+      : 'Cleaner cooking upgrades can reduce household emissions while improving indoor air quality.',
+  ]
+
+  return tips[activeGroup] || tips[0]
+}
+
+const getLiveCarbonPreview = (formData) => {
+  const distance = Number(formData.transportation.averageDistancePerDay) || 0
+  const electricity = Number(formData.electricity.monthlyKWh) || 0
+  const water = Number(formData.water.litersPerDay) || 0
+  const transportLoad = distance > 35 ? 'High' : distance > 12 ? 'Moderate' : 'Low'
+  const energyLoad = electricity > 320 ? 'High' : electricity > 160 ? 'Moderate' : 'Low'
+  const lifestyleSignal = formData.food.habit === 'heavy_meat' || formData.waste.plasticUsage === 'high' ? 'Elevated' : 'Balanced'
+
+  return {
+    transportLoad,
+    energyLoad,
+    lifestyleSignal,
+    estimate: Math.round((distance * 6.5) + (electricity * 0.7) + (water * 0.08)),
+  }
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 },
+}
+
+function Icon({ name, className = 'h-5 w-5' }) {
   return (
-    <div className="rounded-xl border border-emerald-300/15 bg-white/[0.06] p-4 shadow-2xl shadow-emerald-950/20">
-      <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/60">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-white">{value}</p>
-      <p className="mt-1 text-sm text-slate-300">{helper}</p>
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {iconPaths[name] || iconPaths.spark}
+    </svg>
+  )
+}
+
+function AnimatedNumber({ value, suffix = '', decimals = 0 }) {
+  const [display, setDisplay] = useState(0)
+  const numericValue = Number(value) || 0
+
+  useEffect(() => {
+    const controls = animate(0, numericValue, {
+      duration: 0.9,
+      ease: 'easeOut',
+      onUpdate: (latest) => setDisplay(latest),
+    })
+
+    return () => controls.stop()
+  }, [numericValue])
+
+  return (
+    <span>
+      {display.toLocaleString('en-IN', {
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals,
+      })}
+      {suffix}
+    </span>
+  )
+}
+
+function SectionShell({ eyebrow, title, description, children, action, className = '' }) {
+  return (
+    <motion.section
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.45 }}
+      className={`space-y-5 ${className}`}
+    >
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/70">{eyebrow}</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white md:text-3xl">{title}</h2>
+          {description ? <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">{description}</p> : null}
+        </div>
+        {action}
+      </div>
+      {children}
+    </motion.section>
+  )
+}
+
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(8,47,73,0.68))] px-6 py-7 shadow-2xl shadow-slate-950/30 md:px-8">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent" />
+      <div className="max-w-3xl">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200/75">Carbon Intelligence Calculator</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-5xl">Carbon Intelligence Calculator</h1>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
+          Understand your environmental impact through intelligent carbon analytics.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function FieldControl({ field, formData, updateField }) {
+  const value = formData[field.section][field.name]
+
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-medium text-slate-300">{field.label}</span>
+      {field.type === 'select' ? (
+        <select
+          value={value}
+          onChange={(event) => updateField(field.section, field.name, event.target.value, field.type)}
+          className="w-full rounded-xl bg-slate-950/70 px-4 py-3.5 text-sm text-white shadow-inner shadow-black/20 outline-none ring-1 ring-white/10 transition focus:ring-2 focus:ring-emerald-300/70"
+        >
+          {field.options.map(([optionValue, label]) => (
+            <option key={optionValue} value={optionValue}>{label}</option>
+          ))}
+        </select>
+      ) : null}
+
+      {field.type === 'number' ? (
+        <div className="flex overflow-hidden rounded-xl bg-slate-950/70 shadow-inner shadow-black/20 ring-1 ring-white/10 transition focus-within:ring-2 focus-within:ring-emerald-300/70">
+          <input
+            type="number"
+            min="0"
+            value={value}
+            onChange={(event) => updateField(field.section, field.name, event.target.value, field.type)}
+            className="min-w-0 flex-1 bg-transparent px-4 py-3.5 text-sm text-white outline-none"
+          />
+          {field.suffix ? <span className="px-4 py-3.5 text-sm text-slate-500">{field.suffix}</span> : null}
+        </div>
+      ) : null}
+
+      {field.type === 'toggle' ? (
+        <button
+          type="button"
+          onClick={() => updateField(field.section, field.name, !value, field.type)}
+          className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-sm font-semibold shadow-inner shadow-black/20 ring-1 transition ${
+            value ? 'bg-emerald-400/15 text-emerald-100 ring-emerald-300/40' : 'bg-slate-950/70 text-slate-300 ring-white/10 hover:ring-white/20'
+          }`}
+        >
+          <span>{value ? 'Yes, I recycle' : 'No regular recycling'}</span>
+          <span className={`flex h-6 w-11 items-center rounded-full p-1 transition ${value ? 'bg-emerald-300' : 'bg-white/15'}`}>
+            <span className={`block h-4 w-4 rounded-full bg-slate-950 transition ${value ? 'translate-x-5' : ''}`} />
+          </span>
+        </button>
+      ) : null}
+    </label>
+  )
+}
+
+function QuestionnaireCard({ activeGroup, setActiveGroup, formData, updateField, calculate, loading }) {
+  const group = fieldGroups[activeGroup]
+  const atFirst = activeGroup === 0
+  const atLast = activeGroup === fieldGroups.length - 1
+
+  return (
+    <SectionShell
+      eyebrow="Lifestyle Questionnaire"
+      title="Build a precise lifestyle profile"
+      description="Complete one category at a time. The calculator keeps the same emissions logic, now with a calmer flow."
+    >
+      <div className="rounded-2xl bg-white/[0.055] p-4 shadow-2xl shadow-slate-950/25 ring-1 ring-white/10 md:p-6">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+          {fieldGroups.map((item, index) => (
+            <button
+              key={item.title}
+              type="button"
+              onClick={() => setActiveGroup(index)}
+              className={`group flex items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${
+                activeGroup === index
+                  ? 'bg-white text-slate-950 shadow-lg shadow-emerald-950/20'
+                  : 'bg-slate-950/45 text-slate-400 hover:bg-white/[0.08] hover:text-white'
+              }`}
+            >
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${activeGroup === index ? 'bg-emerald-100 text-emerald-700' : 'bg-white/[0.08] text-emerald-200'}`}>
+                <Icon name={item.icon} className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 truncate">{item.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <motion.div
+          key={group.title}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28 }}
+          className="mt-6 rounded-2xl bg-slate-950/45 p-5 shadow-inner shadow-black/20 md:p-7"
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-300/12 text-emerald-200 ring-1 ring-emerald-200/15">
+                  <Icon name={group.icon} />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200/60">{group.eyebrow}</p>
+                  <h3 className="mt-1 text-2xl font-semibold text-white">{group.title}</h3>
+                </div>
+              </div>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">{group.description}</p>
+            </div>
+            <span className="rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-slate-400">
+              Step {activeGroup + 1} of {fieldGroups.length}
+            </span>
+          </div>
+
+          <div className="mt-7 grid gap-5 md:grid-cols-2">
+            {group.fields.map((field) => (
+              <FieldControl key={`${field.section}-${field.name}`} field={field} formData={formData} updateField={updateField} />
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-col gap-5 pt-5">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveGroup((prev) => Math.max(prev - 1, 0))}
+                disabled={atFirst}
+                className="rounded-xl bg-white/[0.06] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGroup((prev) => Math.min(prev + 1, fieldGroups.length - 1))}
+                disabled={atLast}
+                className="rounded-xl bg-white/[0.06] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <motion.button
+                type="button"
+                onClick={calculate}
+                disabled={loading}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full max-w-md rounded-2xl bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 px-8 py-4 text-base font-bold text-slate-950 shadow-2xl shadow-emerald-500/25 transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? 'Generating carbon report...' : 'Calculate Carbon Report'}
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </SectionShell>
+  )
+}
+
+function SummaryCards({ result }) {
+  const cards = [
+    { label: 'Monthly Carbon', value: result.monthlyCarbonKg, suffix: ' kg', helper: 'CO2e per month', icon: 'calendar' },
+    { label: 'Yearly Carbon', value: result.yearlyCarbonKg, suffix: ' kg', helper: 'Projected annual footprint', icon: 'chart' },
+    { label: 'Eco Score', value: result.ecoScore.score, suffix: '/100', helper: result.ecoScore.classification.label, icon: 'target' },
+    {
+      label: 'Largest Emission Source',
+      textValue: formatCategory(result.largestEmissionSource.category),
+      helper: `${result.largestEmissionSource.value} kg CO2e/month`,
+      icon: 'spark',
+    },
+  ]
+
+  return (
+    <SectionShell eyebrow="Results Overview" title="Your footprint at a glance" description="Four essentials only, tuned for quick scanning.">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card, index) => (
+          <motion.div
+            key={card.label}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: index * 0.06, duration: 0.4 }}
+            className="rounded-2xl bg-white/[0.06] p-5 shadow-xl shadow-slate-950/20 ring-1 ring-white/[0.06]"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <p className="text-sm font-medium text-slate-400">{card.label}</p>
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-300/12 text-emerald-200">
+                <Icon name={card.icon} />
+              </span>
+            </div>
+            <p className="mt-5 min-h-16 text-3xl font-semibold tracking-tight text-white">
+              {card.textValue || <AnimatedNumber value={card.value} suffix={card.suffix} />}
+            </p>
+            <p className="mt-2 text-sm text-slate-400">{card.helper}</p>
+          </motion.div>
+        ))}
+      </div>
+    </SectionShell>
+  )
+}
+
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-xl bg-slate-950/95 px-4 py-3 text-sm shadow-xl ring-1 ring-white/10">
+      <p className="font-semibold text-white">{label || payload[0].name}</p>
+      <p className="mt-1 text-emerald-200">{payload[0].value} kg CO2e</p>
     </div>
   )
 }
 
-function ScoreRing({ score, label }) {
-  const angle = Math.round((score / 100) * 360)
+function AnalyticsSection({ chartData }) {
+  return (
+    <SectionShell eyebrow="Carbon Analytics" title="Category distribution" description="A dedicated chart space makes the carbon story easier to read.">
+      <div className="grid gap-5 xl:grid-cols-2">
+        <motion.div className="rounded-2xl bg-white/[0.055] p-6 shadow-xl shadow-slate-950/20 ring-1 ring-white/[0.07]" whileHover={{ y: -2 }}>
+          <h3 className="text-lg font-semibold text-white">Contribution Mix</h3>
+          <div className="mt-4 h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={chartData} dataKey="value" nameKey="category" outerRadius={118} innerRadius={66} paddingAngle={3} animationDuration={900}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={entry.category} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<ChartTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+
+        <motion.div className="rounded-2xl bg-white/[0.055] p-6 shadow-xl shadow-slate-950/20 ring-1 ring-white/[0.07]" whileHover={{ y: -2 }}>
+          <h3 className="text-lg font-semibold text-white">Emission Comparison</h3>
+          <div className="mt-4 h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 8, right: 8, left: -18, bottom: 8 }}>
+                <XAxis dataKey="category" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]} animationDuration={900}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={entry.category} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      </div>
+    </SectionShell>
+  )
+}
+
+function ImpactCards({ impact }) {
+  const cards = [
+    { label: 'Trees Needed', value: impact.treesNeededToOffset, helper: 'to offset annually', icon: 'leaf' },
+    { label: 'Driving Equivalent', value: impact.equivalentDrivingKm, suffix: ' km', helper: 'petrol car distance', icon: 'route' },
+    { label: 'Coal Burned', value: impact.coalBurnedKg, suffix: ' kg', helper: 'annual equivalent', icon: 'flame' },
+    { label: 'Electricity Equivalent', value: impact.householdElectricityKWh, suffix: ' kWh', helper: 'monthly household use', icon: 'bolt' },
+  ]
 
   return (
-    <div className="flex items-center gap-5 rounded-xl border border-emerald-300/15 bg-white/[0.06] p-5">
-      <div
-        className="grid h-28 w-28 shrink-0 place-items-center rounded-full"
-        style={{ background: `conic-gradient(#34d399 ${angle}deg, rgba(255,255,255,0.08) 0deg)` }}
-      >
-        <div className="grid h-20 w-20 place-items-center rounded-full bg-slate-950">
-          <span className="text-3xl font-black text-emerald-300">{score}</span>
+    <SectionShell eyebrow="Environmental Impact" title="Real-world equivalents" description="Carbon numbers translated into everyday environmental impact.">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card) => (
+          <div key={card.label} className="rounded-2xl bg-slate-950/40 p-5 shadow-lg shadow-slate-950/15 ring-1 ring-white/[0.06]">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-cyan-300/10 text-cyan-200">
+              <Icon name={card.icon} />
+            </span>
+            <p className="mt-5 text-sm font-medium text-slate-400">{card.label}</p>
+            <p className="mt-2 text-3xl font-semibold text-white">
+              <AnimatedNumber value={card.value} suffix={card.suffix || ''} />
+            </p>
+            <p className="mt-2 text-sm text-slate-500">{card.helper}</p>
+          </div>
+        ))}
+      </div>
+    </SectionShell>
+  )
+}
+
+function StickyCarbonSummaryPanel({ activeGroup, formData }) {
+  const completion = Math.round(((activeGroup + 1) / fieldGroups.length) * 100)
+  const preview = getLiveCarbonPreview(formData)
+  const tip = getDynamicTip(activeGroup, formData)
+
+  return (
+    <motion.aside
+      initial={{ opacity: 0, x: 18 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.35 }}
+      className="sticky top-6 space-y-4 rounded-3xl bg-white/[0.065] p-5 shadow-2xl shadow-slate-950/30 ring-1 ring-white/[0.08] backdrop-blur-2xl"
+    >
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/70">Carbon Summary</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Live profile</h2>
+      </div>
+
+      <div className="grid gap-3">
+        <div className="rounded-2xl bg-slate-950/45 p-4">
+          <p className="text-xs font-medium text-slate-500">Monthly Carbon</p>
+          <p className="mt-2 text-2xl font-semibold text-white">Pending</p>
+          <p className="mt-1 text-xs text-slate-500">Calculated after report generation</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-slate-950/45 p-4">
+            <p className="text-xs font-medium text-slate-500">Eco Score</p>
+            <p className="mt-2 text-xl font-semibold text-white">-- / 100</p>
+          </div>
+          <div className="rounded-2xl bg-slate-950/45 p-4">
+            <p className="text-xs font-medium text-slate-500">Largest Source</p>
+            <p className="mt-2 text-xl font-semibold text-white">{fieldGroups[activeGroup].title}</p>
+          </div>
         </div>
       </div>
-      <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/60">Eco Score</p>
-        <h3 className="mt-2 text-2xl font-bold text-white">{label}</h3>
-        <p className="mt-2 text-sm text-slate-300">Score is calculated from annual carbon intensity, recycling habits, and low-carbon mobility choices.</p>
+
+      <div className="rounded-2xl bg-slate-950/45 p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-slate-300">Completion Progress</p>
+          <p className="text-sm font-semibold text-emerald-200">{completion}%</p>
+        </div>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${completion}%` }}
+            transition={{ duration: 0.35 }}
+            className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-cyan-300"
+          />
+        </div>
       </div>
-    </div>
+
+      <div className="rounded-2xl bg-gradient-to-br from-emerald-300/12 to-cyan-300/10 p-4">
+        <p className="text-sm font-medium text-cyan-100">Live Carbon Preview</p>
+        <p className="mt-2 text-3xl font-semibold text-white">
+          <AnimatedNumber value={preview.estimate} suffix=" kg" />
+        </p>
+        <div className="mt-4 grid gap-2 text-xs text-slate-300">
+          <div className="flex justify-between"><span>Transport</span><span>{preview.transportLoad}</span></div>
+          <div className="flex justify-between"><span>Energy</span><span>{preview.energyLoad}</span></div>
+          <div className="flex justify-between"><span>Lifestyle</span><span>{preview.lifestyleSignal}</span></div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-slate-950/45 p-4">
+        <p className="text-sm font-medium text-emerald-200">Dynamic Environmental Tip</p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{tip}</p>
+      </div>
+    </motion.aside>
+  )
+}
+
+function StickyAIInsightsPanel({ result, downloadReport }) {
+  const recommendations = result.aiAnalysis?.recommendations || []
+
+  return (
+    <motion.aside
+      initial={{ opacity: 0, x: 18 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.35 }}
+      className="sticky top-6 space-y-4 rounded-3xl bg-white/[0.065] p-5 shadow-2xl shadow-slate-950/30 ring-1 ring-white/[0.08] backdrop-blur-2xl"
+    >
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/70">AI Insights</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Reduction plan</h2>
+      </div>
+
+      <div className="rounded-2xl bg-slate-950/45 p-4">
+        <p className="text-sm font-medium text-emerald-200">Carbon Summary</p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{result.aiAnalysis?.carbonSummary || 'Your calculated profile is ready for review.'}</p>
+      </div>
+
+      <div className="rounded-2xl bg-slate-950/45 p-4">
+        <p className="text-xs font-medium text-slate-500">Top Emission Source</p>
+        <p className="mt-2 text-2xl font-semibold text-white">{formatCategory(result.largestEmissionSource.category)}</p>
+        <p className="mt-1 text-sm text-slate-400">{result.largestEmissionSource.value} kg CO2e/month</p>
+      </div>
+
+      <div className="rounded-2xl bg-slate-950/45 p-4">
+        <p className="text-sm font-medium text-cyan-100">Personalized Recommendations</p>
+        <div className="mt-3 space-y-3">
+          {recommendations.slice(0, 3).map((rec) => (
+            <div key={rec.title} className="rounded-xl bg-white/[0.055] p-3">
+              <p className="text-sm font-semibold text-white">{rec.title}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-400">{rec.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-gradient-to-br from-emerald-300/14 to-cyan-300/10 p-4">
+        <p className="text-sm font-medium text-emerald-100">Monthly Goal</p>
+        <p className="mt-2 text-3xl font-semibold text-white">
+          <AnimatedNumber value={result.aiAnalysis?.monthlyReductionGoalKg || 0} suffix=" kg" />
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{result.aiAnalysis?.motivationalMessage}</p>
+      </div>
+
+      <motion.button
+        type="button"
+        onClick={downloadReport}
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-300 to-emerald-300 px-4 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/15"
+      >
+        <Icon name="download" className="h-4 w-4" />
+        Download Report
+      </motion.button>
+    </motion.aside>
+  )
+}
+
+function AnalyticsDashboard({ result, chartData, historyLoading, historyData, history }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-9"
+    >
+      <SummaryCards result={result} />
+      <AnalyticsSection chartData={chartData} />
+      <ImpactCards impact={result.impact} />
+      <HistoryChart historyLoading={historyLoading} historyData={historyData} history={history} />
+    </motion.div>
+  )
+}
+
+function HistoryChart({ historyLoading, historyData, history }) {
+  return (
+    <SectionShell
+      eyebrow="Carbon History"
+      title="Monthly trend and previous reports"
+      description="Your saved reports stay at the bottom so the current calculation remains the focus."
+      action={<p className="text-sm text-slate-400">{history.length} reports</p>}
+    >
+      <div className="rounded-2xl bg-white/[0.055] p-5 shadow-xl shadow-slate-950/20 ring-1 ring-white/[0.07] md:p-6">
+        {historyLoading ? (
+          <div className="h-72 animate-pulse rounded-2xl bg-white/[0.06]" />
+        ) : historyData.length ? (
+          <>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={historyData} margin={{ top: 10, right: 12, left: -18, bottom: 8 }}>
+                  <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Line type="monotone" dataKey="carbon" stroke="#34d399" strokeWidth={3} dot={{ r: 4, fill: '#34d399' }} animationDuration={900} />
+                  <Line type="monotone" dataKey="score" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3, fill: '#22d3ee' }} animationDuration={900} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-6 overflow-hidden rounded-2xl bg-slate-950/35">
+              <div className="grid grid-cols-3 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                <span>Date</span>
+                <span>Monthly Carbon</span>
+                <span>Eco Score</span>
+              </div>
+              {history.slice(0, 6).map((item) => (
+                <div key={item._id || item.reportId || item.createdAt} className="grid grid-cols-3 gap-3 px-4 py-3 text-sm text-slate-300 odd:bg-white/[0.025]">
+                  <span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Current report'}</span>
+                  <span>{item.monthlyCarbonKg} kg</span>
+                  <span>{item.ecoScore?.score ?? '-'} / 100</span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="rounded-2xl bg-slate-950/35 p-10 text-center text-slate-400">
+            No saved reports yet. Your first calculation will create the baseline.
+          </div>
+        )}
+      </div>
+    </SectionShell>
   )
 }
 
@@ -182,7 +840,7 @@ function CarbonCalculatorPage() {
       .slice()
       .reverse()
       .map((item) => ({
-        label: new Date(item.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+        label: item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : 'Current',
         carbon: item.monthlyCarbonKg,
         score: item.ecoScore?.score,
       })),
@@ -194,7 +852,7 @@ function CarbonCalculatorPage() {
       try {
         const response = await apiClient.get('/carbon/history')
         setHistory(response.data.data || [])
-      } catch (_err) {
+      } catch {
         setHistory([])
       } finally {
         setHistoryLoading(false)
@@ -283,232 +941,49 @@ function CarbonCalculatorPage() {
   }
 
   return (
-    <div className="space-y-6 text-white">
-      <section className="overflow-hidden rounded-2xl border border-emerald-300/15 bg-slate-950/60 p-6 shadow-2xl shadow-emerald-950/20">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-emerald-200/70">AI Carbon Intelligence Calculator</p>
-            <h1 className="mt-3 max-w-3xl text-3xl font-black tracking-tight text-white md:text-5xl">
-              Premium sustainability analytics for everyday climate decisions.
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-              Emissions are calculated with deterministic factors. Gemini is used only after calculation to explain patterns, goals, and recommendations.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={calculate}
-            disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-6 py-3 font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? 'Generating intelligence...' : 'Calculate Carbon Intelligence'}
-          </button>
-        </div>
-      </section>
-
+    <div className="mx-auto max-w-7xl text-white">
       {error ? (
-        <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-100">{error}</div>
+        <div className="mb-6 rounded-2xl bg-red-500/10 p-4 text-sm text-red-100 shadow-lg shadow-red-950/20 ring-1 ring-red-300/25">{error}</div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <section className="rounded-2xl border border-emerald-300/15 bg-white/[0.05] p-5 backdrop-blur-xl">
-          <div className="mb-5 grid grid-cols-3 gap-2">
-            {fieldGroups.map((group, index) => (
-              <button
-                key={group.title}
-                type="button"
-                onClick={() => setActiveGroup(index)}
-                className={`rounded-lg px-3 py-2 text-left text-xs font-bold transition ${
-                  activeGroup === index ? 'bg-emerald-400 text-slate-950' : 'bg-white/[0.06] text-slate-300 hover:bg-white/[0.1]'
-                }`}
-              >
-                {group.title}
-              </button>
-            ))}
-          </div>
-
-          <motion.div
-            key={fieldGroups[activeGroup].title}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/60">{fieldGroups[activeGroup].eyebrow}</p>
-              <h2 className="mt-1 text-2xl font-bold">{fieldGroups[activeGroup].title}</h2>
-            </div>
-
-            {fieldGroups[activeGroup].fields.map((field) => (
-              <label key={`${field.section}-${field.name}`} className="block rounded-xl border border-white/10 bg-slate-950/50 p-4">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">{field.label}</span>
-                {field.type === 'select' ? (
-                  <select
-                    value={formData[field.section][field.name]}
-                    onChange={(event) => updateField(field.section, field.name, event.target.value, field.type)}
-                    className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-3 text-white outline-none focus:border-emerald-300"
-                  >
-                    {field.options.map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
-                ) : null}
-                {field.type === 'number' ? (
-                  <div className="flex overflow-hidden rounded-lg border border-white/10 bg-slate-900 focus-within:border-emerald-300">
-                    <input
-                      type="number"
-                      min="0"
-                      value={formData[field.section][field.name]}
-                      onChange={(event) => updateField(field.section, field.name, event.target.value, field.type)}
-                      className="min-w-0 flex-1 bg-transparent px-3 py-3 text-white outline-none"
-                    />
-                    {field.suffix ? <span className="border-l border-white/10 px-3 py-3 text-sm text-slate-400">{field.suffix}</span> : null}
-                  </div>
-                ) : null}
-                {field.type === 'toggle' ? (
-                  <button
-                    type="button"
-                    onClick={() => updateField(field.section, field.name, !formData[field.section][field.name], field.type)}
-                    className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 font-semibold transition ${
-                      formData[field.section][field.name] ? 'border-emerald-300 bg-emerald-400/15 text-emerald-100' : 'border-white/10 bg-slate-900 text-slate-300'
-                    }`}
-                  >
-                    <span>{formData[field.section][field.name] ? 'Yes' : 'No'}</span>
-                    <span className="h-5 w-10 rounded-full bg-white/15 p-0.5">
-                      <span className={`block h-4 w-4 rounded-full bg-white transition ${formData[field.section][field.name] ? 'translate-x-5' : ''}`} />
-                    </span>
-                  </button>
-                ) : null}
-              </label>
-            ))}
-          </motion.div>
-        </section>
-
-        <section className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+        <div className="space-y-8 lg:col-span-8">
           {result ? (
-            <>
-              <div className="grid gap-4 md:grid-cols-2">
-                <MetricCard label="Monthly Carbon" value={`${result.monthlyCarbonKg} kg`} helper="CO2e per month" />
-                <MetricCard label="Yearly Carbon" value={`${result.yearlyCarbonKg} kg`} helper="Projected annual footprint" />
-                <MetricCard label="Largest Source" value={formatCategory(result.largestEmissionSource.category)} helper={`${result.largestEmissionSource.value} kg CO2e/month`} />
-                <MetricCard label="AI Status" value={result.aiStatus === 'generated' ? 'Gemini' : 'Rule-based'} helper="Insight engine used" />
-              </div>
-
-              <ScoreRing score={result.ecoScore.score} label={result.ecoScore.classification.label} />
-
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-2xl border border-emerald-300/15 bg-white/[0.05] p-5">
-                  <h3 className="mb-4 text-lg font-bold">Carbon Contribution</h3>
-                  <ResponsiveContainer width="100%" height={260}>
-                    <PieChart>
-                      <Pie data={chartData} dataKey="value" nameKey="category" outerRadius={90} innerRadius={52}>
-                        {chartData.map((entry, index) => (
-                          <Cell key={entry.category} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="rounded-2xl border border-emerald-300/15 bg-white/[0.05] p-5">
-                  <h3 className="mb-4 text-lg font-bold">Emission Comparison</h3>
-                  <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={chartData}>
-                      <XAxis dataKey="category" tick={{ fill: '#cbd5e1', fontSize: 11 }} />
-                      <YAxis tick={{ fill: '#cbd5e1', fontSize: 11 }} />
-                      <Tooltip />
-                      <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                          <Cell key={entry.category} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-5">
-                <MetricCard label="Trees" value={result.impact.treesNeededToOffset} helper="needed yearly" />
-                <MetricCard label="Driving" value={`${result.impact.equivalentDrivingKm} km`} helper="petrol car equivalent" />
-                <MetricCard label="Electricity" value={`${result.impact.householdElectricityKWh} kWh`} helper="monthly equivalent" />
-                <MetricCard label="Coal" value={`${result.impact.coalBurnedKg} kg`} helper="burned yearly" />
-                <MetricCard label="Phone Charges" value={result.impact.smartphoneCharges} helper="monthly equivalent" />
-              </div>
-
-              <div className="rounded-2xl border border-emerald-300/15 bg-white/[0.05] p-5">
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/60">Gemini Analysis</p>
-                    <h3 className="mt-1 text-2xl font-bold">Personalized Carbon Plan</h3>
-                    <p className="mt-3 max-w-3xl text-slate-300">{result.aiAnalysis?.carbonSummary}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={downloadReport}
-                    className="rounded-xl border border-emerald-300/30 px-4 py-2 text-sm font-bold text-emerald-100 transition hover:bg-emerald-400/10"
-                  >
-                    Download PDF Report
-                  </button>
-                </div>
-
-                <div className="mt-5 grid gap-4 lg:grid-cols-3">
-                  {(result.aiAnalysis?.recommendations || []).slice(0, 3).map((rec) => (
-                    <div key={rec.title} className="rounded-xl bg-slate-950/60 p-4">
-                      <p className="font-bold text-emerald-200">{rec.title}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">{rec.detail}</p>
-                      <p className="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-cyan-200">
-                        Save {rec.estimatedAnnualSavingsKg} kg/year
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-5 rounded-xl bg-emerald-400/10 p-4 text-sm text-emerald-50">
-                  Monthly reduction goal: <strong>{result.aiAnalysis?.monthlyReductionGoalKg} kg CO2e</strong>. {result.aiAnalysis?.motivationalMessage}
-                </div>
-              </div>
-            </>
+            <AnalyticsDashboard
+              result={result}
+              chartData={chartData}
+              historyLoading={historyLoading}
+              historyData={historyData}
+              history={history}
+            />
           ) : (
-            <div className="grid min-h-[520px] place-items-center rounded-2xl border border-emerald-300/15 bg-white/[0.05] p-8 text-center">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-emerald-200/70">Ready when you are</p>
-                <h2 className="mt-3 text-3xl font-black">Complete the questionnaire and generate your intelligence report.</h2>
-                <p className="mx-auto mt-3 max-w-xl text-slate-300">
-                  Your report will include category emissions, an eco score, environmental equivalents, Gemini recommendations, and monthly tracking.
-                </p>
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="space-y-8"
+            >
+              <HeroSection />
+              <QuestionnaireCard
+                activeGroup={activeGroup}
+                setActiveGroup={setActiveGroup}
+                formData={formData}
+                updateField={updateField}
+                calculate={calculate}
+                loading={loading}
+              />
+            </motion.div>
           )}
-        </section>
-      </div>
-
-      <section className="rounded-2xl border border-emerald-300/15 bg-white/[0.05] p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/60">Monthly History</p>
-            <h2 className="mt-1 text-2xl font-bold">Carbon Trend</h2>
-          </div>
-          <p className="text-sm text-slate-400">{history.length} reports</p>
         </div>
 
-        {historyLoading ? (
-          <div className="h-64 animate-pulse rounded-xl bg-white/[0.06]" />
-        ) : historyData.length ? (
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={historyData}>
-              <XAxis dataKey="label" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
-              <YAxis tick={{ fill: '#cbd5e1', fontSize: 12 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="carbon" stroke="#34d399" strokeWidth={3} dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="score" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="rounded-xl border border-dashed border-white/15 p-8 text-center text-slate-300">
-            No saved reports yet. Your first calculation will create the baseline.
-          </div>
-        )}
-      </section>
+        <div className="lg:col-span-4">
+          {result ? (
+            <StickyAIInsightsPanel result={result} downloadReport={downloadReport} />
+          ) : (
+            <StickyCarbonSummaryPanel activeGroup={activeGroup} formData={formData} />
+          )}
+        </div>
+      </div>
     </div>
   )
 }
