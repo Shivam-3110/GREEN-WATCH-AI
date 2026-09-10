@@ -334,16 +334,31 @@ function SectionShell({ eyebrow, title, description, children, action, className
   )
 }
 
-function HeroSection() {
+function HeroSection({ activeGroup }) {
+  const completion = Math.round(((activeGroup + 1) / fieldGroups.length) * 100)
+
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(8,47,73,0.68))] px-6 py-7 shadow-2xl shadow-slate-950/30 md:px-8">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent" />
-      <div className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200/75">Carbon Intelligence Calculator</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-5xl">Carbon Intelligence Calculator</h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-          Understand your environmental impact through intelligent carbon analytics.
-        </p>
+    <section className="relative overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#07111f]/80 px-6 py-7 shadow-2xl shadow-black/25 backdrop-blur-2xl md:px-8">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#48E5C2]/70 to-transparent" />
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-[34px] font-semibold tracking-tight text-white md:text-[40px]">Carbon Calculator</h1>
+          <p className="mt-2 text-base text-slate-300">Calculate your monthly carbon footprint.</p>
+        </div>
+        <div className="w-full lg:max-w-xs">
+          <div className="flex items-center justify-between text-[13px] font-medium">
+            <span className="text-slate-400">Progress</span>
+            <span className="text-[#48E5C2]">{completion}% Complete</span>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${completion}%` }}
+              transition={{ duration: 0.4 }}
+              className="h-full rounded-full bg-gradient-to-r from-[#48E5C2] to-[#2BC9F4]"
+            />
+          </div>
+        </div>
       </div>
     </section>
   )
@@ -359,7 +374,7 @@ function FieldControl({ field, formData, updateField }) {
         <select
           value={value}
           onChange={(event) => updateField(field.section, field.name, event.target.value, field.type)}
-          className="w-full rounded-xl bg-slate-950/70 px-4 py-3.5 text-sm text-white shadow-inner shadow-black/20 outline-none ring-1 ring-white/10 transition focus:ring-2 focus:ring-emerald-300/70"
+          className="h-12 w-full rounded-2xl border border-white/[0.08] bg-[#081322]/90 px-4 text-sm text-white shadow-inner shadow-black/20 outline-none transition hover:border-white/[0.14] focus:border-[#48E5C2] focus:ring-2 focus:ring-[#48E5C2]/30"
         >
           {field.options.map(([optionValue, label]) => (
             <option key={optionValue} value={optionValue}>{label}</option>
@@ -368,15 +383,15 @@ function FieldControl({ field, formData, updateField }) {
       ) : null}
 
       {field.type === 'number' ? (
-        <div className="flex overflow-hidden rounded-xl bg-slate-950/70 shadow-inner shadow-black/20 ring-1 ring-white/10 transition focus-within:ring-2 focus-within:ring-emerald-300/70">
+        <div className="flex h-12 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#081322]/90 shadow-inner shadow-black/20 transition hover:border-white/[0.14] focus-within:border-[#48E5C2] focus-within:ring-2 focus-within:ring-[#48E5C2]/30">
           <input
             type="number"
             min="0"
             value={value}
             onChange={(event) => updateField(field.section, field.name, event.target.value, field.type)}
-            className="min-w-0 flex-1 bg-transparent px-4 py-3.5 text-sm text-white outline-none"
+            className="min-w-0 flex-1 bg-transparent px-4 text-sm text-white outline-none"
           />
-          {field.suffix ? <span className="px-4 py-3.5 text-sm text-slate-500">{field.suffix}</span> : null}
+          {field.suffix ? <span className="grid place-items-center border-l border-white/[0.06] px-4 text-[13px] text-slate-500">{field.suffix}</span> : null}
         </div>
       ) : null}
 
@@ -384,12 +399,12 @@ function FieldControl({ field, formData, updateField }) {
         <button
           type="button"
           onClick={() => updateField(field.section, field.name, !value, field.type)}
-          className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-sm font-semibold shadow-inner shadow-black/20 ring-1 transition ${
-            value ? 'bg-emerald-400/15 text-emerald-100 ring-emerald-300/40' : 'bg-slate-950/70 text-slate-300 ring-white/10 hover:ring-white/20'
+          className={`flex h-12 w-full items-center justify-between rounded-2xl border px-4 text-sm font-semibold shadow-inner shadow-black/20 transition focus-visible:ring-2 focus-visible:ring-[#48E5C2]/40 ${
+            value ? 'border-[#48E5C2]/40 bg-[#48E5C2]/12 text-[#CFFFF5]' : 'border-white/[0.08] bg-[#081322]/90 text-slate-300 hover:border-white/[0.14]'
           }`}
         >
           <span>{value ? 'Yes, I recycle' : 'No regular recycling'}</span>
-          <span className={`flex h-6 w-11 items-center rounded-full p-1 transition ${value ? 'bg-emerald-300' : 'bg-white/15'}`}>
+          <span className={`flex h-6 w-11 items-center rounded-full p-1 transition ${value ? 'bg-[#48E5C2]' : 'bg-white/15'}`}>
             <span className={`block h-4 w-4 rounded-full bg-slate-950 transition ${value ? 'translate-x-5' : ''}`} />
           </span>
         </button>
@@ -404,26 +419,24 @@ function QuestionnaireCard({ activeGroup, setActiveGroup, formData, updateField,
   const atLast = activeGroup === fieldGroups.length - 1
 
   return (
-    <SectionShell
-      eyebrow="Lifestyle Questionnaire"
-      title="Build a precise lifestyle profile"
-      description="Complete one category at a time. The calculator keeps the same emissions logic, now with a calmer flow."
-    >
-      <div className="rounded-2xl bg-white/[0.055] p-4 shadow-2xl shadow-slate-950/25 ring-1 ring-white/10 md:p-6">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+    <section className="space-y-5">
+      <div className="overflow-hidden rounded-[20px] border border-white/[0.08] bg-white/[0.045] p-3 shadow-2xl shadow-black/20 backdrop-blur-2xl md:p-4">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {fieldGroups.map((item, index) => (
             <button
               key={item.title}
               type="button"
               onClick={() => setActiveGroup(index)}
-              className={`group flex items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${
+              className={`group flex min-w-max items-center gap-2 rounded-full border px-3.5 py-2.5 text-left text-sm font-semibold transition duration-200 focus-visible:ring-2 focus-visible:ring-[#48E5C2]/50 ${
                 activeGroup === index
-                  ? 'bg-white text-slate-950 shadow-lg shadow-emerald-950/20'
-                  : 'bg-slate-950/45 text-slate-400 hover:bg-white/[0.08] hover:text-white'
+                  ? 'border-[#48E5C2]/40 bg-white text-slate-950 shadow-lg shadow-[#48E5C2]/10'
+                  : index < activeGroup
+                    ? 'border-[#48E5C2]/20 bg-[#48E5C2]/10 text-[#BFFFF2] hover:bg-[#48E5C2]/15'
+                    : 'border-white/[0.08] bg-[#07111f]/70 text-slate-400 hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-white'
               }`}
             >
-              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${activeGroup === index ? 'bg-emerald-100 text-emerald-700' : 'bg-white/[0.08] text-emerald-200'}`}>
-                <Icon name={item.icon} className="h-4 w-4" />
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${activeGroup === index ? 'bg-[#48E5C2]/20 text-emerald-700' : 'bg-white/[0.08] text-[#48E5C2]'}`}>
+                {index < activeGroup ? <span className="text-sm leading-none">&#10003;</span> : <Icon name={item.icon} className="h-4 w-4" />}
               </span>
               <span className="min-w-0 truncate">{item.title}</span>
             </button>
@@ -432,70 +445,72 @@ function QuestionnaireCard({ activeGroup, setActiveGroup, formData, updateField,
 
         <motion.div
           key={group.title}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28 }}
-          className="mt-6 rounded-2xl bg-slate-950/45 p-5 shadow-inner shadow-black/20 md:p-7"
+          transition={{ duration: 0.3 }}
+          className="mt-5 rounded-[18px] border border-white/[0.08] bg-[#07111f]/80 p-6 shadow-inner shadow-black/20 md:p-8"
         >
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-300/12 text-emerald-200 ring-1 ring-emerald-200/15">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#48E5C2]/12 text-[#48E5C2] ring-1 ring-[#48E5C2]/20">
                   <Icon name={group.icon} />
                 </span>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200/60">{group.eyebrow}</p>
-                  <h3 className="mt-1 text-2xl font-semibold text-white">{group.title}</h3>
+                  <p className="text-[13px] font-medium text-slate-500">Step {activeGroup + 1} of {fieldGroups.length}</p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-tight text-white">{group.title}</h2>
                 </div>
               </div>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">{group.description}</p>
             </div>
-            <span className="rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-slate-400">
-              Step {activeGroup + 1} of {fieldGroups.length}
+            <span className="w-fit rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[13px] font-medium text-slate-400">
+              {Math.round(((activeGroup + 1) / fieldGroups.length) * 100)}%
             </span>
           </div>
 
-          <div className="mt-7 grid gap-5 md:grid-cols-2">
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
             {group.fields.map((field) => (
               <FieldControl key={`${field.section}-${field.name}`} field={field} formData={formData} updateField={updateField} />
             ))}
           </div>
 
-          <div className="mt-8 flex flex-col gap-5 pt-5">
-            <div className="flex gap-2">
+          <div className="sticky bottom-0 z-10 -mx-6 mt-8 flex flex-col gap-3 border-t border-white/[0.08] bg-[#07111f]/95 px-6 py-4 backdrop-blur-xl md:static md:z-auto md:mx-0 md:flex-row md:items-center md:justify-between md:bg-transparent md:px-0 md:pb-0 md:pt-6 md:backdrop-blur-0">
+            <div className="grid grid-cols-2 gap-3 md:flex">
               <button
                 type="button"
                 onClick={() => setActiveGroup((prev) => Math.max(prev - 1, 0))}
                 disabled={atFirst}
-                className="rounded-xl bg-white/[0.06] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-full border border-white/[0.1] bg-transparent px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-white/[0.18] hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Previous
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveGroup((prev) => Math.min(prev + 1, fieldGroups.length - 1))}
-                disabled={atLast}
-                className="rounded-xl bg-white/[0.06] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Next
-              </button>
+              {!atLast ? (
+                <motion.button
+                  type="button"
+                  onClick={() => setActiveGroup((prev) => Math.min(prev + 1, fieldGroups.length - 1))}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="rounded-full bg-gradient-to-r from-[#48E5C2] to-[#2BC9F4] px-6 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-[#48E5C2]/20 transition"
+                >
+                  Next
+                </motion.button>
+              ) : null}
             </div>
-            <div className="flex justify-center">
+            {atLast ? (
               <motion.button
                 type="button"
                 onClick={calculate}
                 disabled={loading}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full max-w-md rounded-2xl bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 px-8 py-4 text-base font-bold text-slate-950 shadow-2xl shadow-emerald-500/25 transition disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-full bg-gradient-to-r from-[#48E5C2] to-[#2BC9F4] px-8 py-3.5 text-sm font-bold text-slate-950 shadow-2xl shadow-[#48E5C2]/20 transition disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
               >
-                {loading ? 'Generating carbon report...' : 'Calculate Carbon Report'}
+                {loading ? 'Generating Report...' : 'Generate Report'}
               </motion.button>
-            </div>
+            ) : null}
           </div>
         </motion.div>
       </div>
-    </SectionShell>
+    </section>
   )
 }
 
@@ -632,61 +647,57 @@ function StickyCarbonSummaryPanel({ activeGroup, formData }) {
       initial={{ opacity: 0, x: 18 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
-      className="sticky top-6 space-y-4 rounded-3xl bg-white/[0.065] p-5 shadow-2xl shadow-slate-950/30 ring-1 ring-white/[0.08] backdrop-blur-2xl"
+      className="sticky top-6 space-y-5 rounded-[20px] border border-white/[0.08] bg-[#07111f]/80 p-6 shadow-2xl shadow-black/25 backdrop-blur-2xl"
     >
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/70">Carbon Summary</p>
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Live profile</h2>
-      </div>
-
-      <div className="grid gap-3">
-        <div className="rounded-2xl bg-slate-950/45 p-4">
-          <p className="text-xs font-medium text-slate-500">Monthly Carbon</p>
-          <p className="mt-2 text-2xl font-semibold text-white">Pending</p>
-          <p className="mt-1 text-xs text-slate-500">Calculated after report generation</p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-slate-950/45 p-4">
-            <p className="text-xs font-medium text-slate-500">Eco Score</p>
-            <p className="mt-2 text-xl font-semibold text-white">-- / 100</p>
-          </div>
-          <div className="rounded-2xl bg-slate-950/45 p-4">
-            <p className="text-xs font-medium text-slate-500">Largest Source</p>
-            <p className="mt-2 text-xl font-semibold text-white">{fieldGroups[activeGroup].title}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl bg-slate-950/45 p-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-slate-300">Completion Progress</p>
-          <p className="text-sm font-semibold text-emerald-200">{completion}%</p>
-        </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${completion}%` }}
-            transition={{ duration: 0.35 }}
-            className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-cyan-300"
-          />
-        </div>
-      </div>
-
-      <div className="rounded-2xl bg-gradient-to-br from-emerald-300/12 to-cyan-300/10 p-4">
-        <p className="text-sm font-medium text-cyan-100">Live Carbon Preview</p>
-        <p className="mt-2 text-3xl font-semibold text-white">
+        <p className="text-[13px] font-medium text-slate-400">Monthly Estimate</p>
+        <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
           <AnimatedNumber value={preview.estimate} suffix=" kg" />
         </p>
-        <div className="mt-4 grid gap-2 text-xs text-slate-300">
-          <div className="flex justify-between"><span>Transport</span><span>{preview.transportLoad}</span></div>
-          <div className="flex justify-between"><span>Energy</span><span>{preview.energyLoad}</span></div>
-          <div className="flex justify-between"><span>Lifestyle</span><span>{preview.lifestyleSignal}</span></div>
+        <p className="mt-1 text-[13px] text-slate-500">CO2e preview from current inputs</p>
+      </div>
+
+      <div className="h-px bg-white/[0.08]" />
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-sm text-slate-400">Eco Score</span>
+          <span className="text-sm font-semibold text-white">Complete to generate</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-sm text-slate-400">Largest Source</span>
+          <span className="text-sm font-semibold text-white">{fieldGroups[activeGroup].title}</span>
+        </div>
+        <div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-slate-400">Completion</span>
+            <span className="text-sm font-semibold text-[#48E5C2]">{completion}%</span>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${completion}%` }}
+              transition={{ duration: 0.35 }}
+              className="h-full rounded-full bg-gradient-to-r from-[#48E5C2] to-[#2BC9F4]"
+            />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4">
+          <p className="text-[13px] text-slate-500">Complete the questionnaire to generate insights.</p>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-slate-950/45 p-4">
-        <p className="text-sm font-medium text-emerald-200">Dynamic Environmental Tip</p>
+      <div className="h-px bg-white/[0.08]" />
+
+      <div className="rounded-2xl border border-[#48E5C2]/15 bg-gradient-to-br from-[#48E5C2]/12 to-[#2BC9F4]/10 p-4">
+        <p className="text-sm font-semibold text-[#CFFFF5]">Today's Tip</p>
         <p className="mt-2 text-sm leading-6 text-slate-300">{tip}</p>
+      </div>
+
+      <div className="grid gap-2 text-[13px] text-slate-400">
+        <div className="flex justify-between"><span>Transport</span><span className="text-slate-200">{preview.transportLoad}</span></div>
+        <div className="flex justify-between"><span>Energy</span><span className="text-slate-200">{preview.energyLoad}</span></div>
+        <div className="flex justify-between"><span>Lifestyle</span><span className="text-slate-200">{preview.lifestyleSignal}</span></div>
       </div>
     </motion.aside>
   )
@@ -946,8 +957,8 @@ function CarbonCalculatorPage() {
         <div className="mb-6 rounded-2xl bg-red-500/10 p-4 text-sm text-red-100 shadow-lg shadow-red-950/20 ring-1 ring-red-300/25">{error}</div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
-        <div className="space-y-8 lg:col-span-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(280px,3fr)] lg:items-start">
+        <div className="space-y-8">
           {result ? (
             <AnalyticsDashboard
               result={result}
@@ -963,7 +974,7 @@ function CarbonCalculatorPage() {
               transition={{ duration: 0.35 }}
               className="space-y-8"
             >
-              <HeroSection />
+              <HeroSection activeGroup={activeGroup} />
               <QuestionnaireCard
                 activeGroup={activeGroup}
                 setActiveGroup={setActiveGroup}
@@ -976,7 +987,7 @@ function CarbonCalculatorPage() {
           )}
         </div>
 
-        <div className="lg:col-span-4">
+        <div>
           {result ? (
             <StickyAIInsightsPanel result={result} downloadReport={downloadReport} />
           ) : (
