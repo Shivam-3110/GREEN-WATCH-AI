@@ -5,6 +5,7 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 env/
 ENV/
 *.egg-info/
@@ -36,3 +37,23 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Uploaded images
+uploads/
+
+# Model cache
+model/.cache/
+
+# Optional test images
+test.jpg
+test.png
