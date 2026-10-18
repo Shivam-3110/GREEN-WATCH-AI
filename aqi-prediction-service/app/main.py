@@ -9,7 +9,7 @@ import time
 
 app = FastAPI(
     title='EcoSphere AQI Prediction API',
-    description='LSTM-powered AQI forecasting microservice',
+    description='XGBoost-powered AQI forecasting microservice',
     version='1.0.0',
     docs_url='/docs',
     redoc_url='/redoc',
@@ -64,7 +64,7 @@ async def root():
         'service': 'EcoSphere AQI Prediction API',
         'version': '1.0.0',
         'status': 'online',
-        'model': 'LSTM trained' if aqi_prediction_service.model_loaded else 'Physics fallback (run training/train.py)',
+        'model': 'XGBoost trained' if aqi_prediction_service.model_loaded else 'Physics fallback (run training/train.py)',
         'docs': '/docs',
         'health': '/health',
     }
@@ -76,7 +76,7 @@ app.include_router(prediction_router)
 @app.on_event('startup')
 async def startup_event():
     print('🚀 AQI Prediction Service starting...')
-    print(f"🧠 Model: {'LSTM on ' + aqi_prediction_service.device.upper() if aqi_prediction_service.model_loaded else 'Physics-based fallback'}")
+    print(f"🧠 Model: {'XGBoost' if aqi_prediction_service.model_loaded else 'Physics-based fallback (run training/train.py)'}")
     print('✅ Service ready on http://localhost:8001')
     print('📚 API Docs at http://localhost:8001/docs')
 

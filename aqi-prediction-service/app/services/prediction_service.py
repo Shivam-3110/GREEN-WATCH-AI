@@ -1,19 +1,18 @@
-import torch
+import xgboost as xgb
 import numpy as np
+import joblib
 import os
-from app.models.lstm_model import AQILSTMModel
-from app.utils.preprocessor import normalize_input, aqi_to_category, get_health_advice, FEATURES
+from app.utils.preprocessor import prepare_input, aqi_to_category, get_health_advice, FEATURES
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'saved_models', 'aqi_lstm.pt')
+MODEL_DIR  = os.path.join(os.path.dirname(__file__), '..', '..', 'saved_models')
+MODEL_PATH = os.path.join(MODEL_DIR, 'aqi_xgboost.json')
 
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-# Decay factors simulating how pollutants disperse over 24 hours
+# Decay factors for physics-based fallback (pollutant dispersion over 24h)
 HOUR_DECAY = np.array([
-    1.00, 0.98, 0.96, 0.94, 0.93, 0.92,   # hours 1-6
-    0.91, 0.90, 0.91, 0.93, 0.95, 0.97,   # hours 7-12
-    0.99, 1.01, 1.02, 1.01, 0.99, 0.97,   # hours 13-18
-    0.95, 0.93, 0.91, 0.90, 0.91, 0.92,   # hours 19-24
+    1.00, 0.98, 0.96, 0.94, 0.93, 0.92,
+    0.91, 0.90, 0.91, 0.93, 0.95, 0.97,
+    0.99, 1.01, 1.02, 1.01, 0.99, 0.97,
+    0.95, 0.93, 0.91, 0.90, 0.91, 0.92,
 ], dtype=np.float32)
 
 
@@ -21,51 +20,46 @@ class AQIPredictionService:
     def __init__(self):
         self.model = None
         self.model_loaded = False
-        self.device = DEVICE
         self._load_model()
 
     def _load_model(self):
         if os.path.exists(MODEL_PATH):
             try:
-                self.model = AQILSTMModel().to(self.device)
-                self.model.load_state_dict(torch.load(MODEL_PATH, map_location=self.device))
-                self.model.eval()
+                self.model = xgb.XGBRegressor()
+                self.model.load_model(MODEL_PATH)
                 self.model_loaded = True
-                print(f"✅ LSTM model loaded from {MODEL_PATH} on {self.device.upper()}")
+                print(f'✅ XGBoost model loaded from {MODEL_PATH}')
             except Exception as e:
-                print(f"⚠️  Failed to load model: {e}. Using physics-based fallback.")
+                print(f'⚠️  Failed to load XGBoost model: {e}. Using physics-based fallback.')
                 self.model_loaded = False
         else:
-            print("📊 No trained model found. Using physics-based prediction (train model for better accuracy).")
+            print('📊 No trained model found. Using physics-based fallback (run training/train.py).')
             self.model_loaded = False
 
     def predict(self, input_data: dict) -> dict:
-        """
-        Predict AQI for next 24 hours.
-        Uses LSTM if trained model exists, otherwise physics-based fallback.
-        """
         current_aqi = self._calculate_current_aqi(input_data)
 
         if self.model_loaded:
-            predictions = self._lstm_predict(input_data, current_aqi)
-            confidence = 0.89
+            predictions = self._xgboost_predict(input_data)
+            confidence  = 0.91
         else:
             predictions = self._physics_predict(current_aqi, input_data)
-            confidence = 0.72
+            confidence  = 0.72
 
         forecast_points = []
         for i, pred in enumerate(predictions):
-            aqi_val = round(float(pred), 1)
-            pm25_val = round(input_data['pm25'] * HOUR_DECAY[i] * (aqi_val / max(current_aqi, 1)), 1)
-            pm10_val = round(input_data['pm10'] * HOUR_DECAY[i] * (aqi_val / max(current_aqi, 1)), 1)
+            aqi_val  = round(float(np.clip(pred, 0, 500)), 1)
+            ratio    = aqi_val / max(current_aqi, 1)
+            pm25_val = round(max(input_data['pm25'] * HOUR_DECAY[i] * ratio, 0), 1)
+            pm10_val = round(max(input_data['pm10'] * HOUR_DECAY[i] * ratio, 0), 1)
             category, color = aqi_to_category(aqi_val)
 
             forecast_points.append({
                 'hour': i + 1,
                 'label': f'+{i + 1}h',
                 'aqi': aqi_val,
-                'pm25': max(pm25_val, 0),
-                'pm10': max(pm10_val, 0),
+                'pm25': pm25_val,
+                'pm10': pm10_val,
                 'category': category,
                 'color': color,
             })
@@ -73,63 +67,50 @@ class AQIPredictionService:
         category, _ = aqi_to_category(current_aqi)
 
         return {
-            'current_aqi': round(current_aqi, 1),
+            'current_aqi':      round(current_aqi, 1),
             'current_category': category,
-            'predictions': forecast_points,
-            'health_advice': get_health_advice(current_aqi),
+            'predictions':      forecast_points,
+            'health_advice':    get_health_advice(current_aqi),
             'model_confidence': confidence,
         }
 
-    def _calculate_current_aqi(self, data: dict) -> float:
-        """Calculate AQI from pollutant concentrations using US EPA breakpoints."""
-        pm25_aqi = self._pm25_to_aqi(data['pm25'])
-        pm10_aqi = self._pm10_to_aqi(data['pm10'])
-        return max(pm25_aqi, pm10_aqi)
+    def _xgboost_predict(self, input_data: dict) -> np.ndarray:
+        """
+        XGBoost predicts one AQI value per hour offset.
+        We build 24 feature rows — one per forecast hour — each with an added
+        'hour_offset' feature so the model knows which hour it's predicting.
+        """
+        base_features = prepare_input(input_data)  # (1, 8)
+        rows = []
+        for h in range(1, 25):
+            hour_feature = np.array([[h]], dtype=np.float32)
+            rows.append(np.hstack([base_features, hour_feature]))  # (1, 9)
 
-    def _lstm_predict(self, input_data: dict, current_aqi: float) -> np.ndarray:
-        """Run LSTM inference."""
-        normalized = normalize_input(input_data)  # (1, 8)
-        # Repeat as sequence of 24 timesteps (simulates past 24h with same reading)
-        seq = np.repeat(normalized, 24, axis=0)    # (24, 8)
-        tensor = torch.tensor(seq, dtype=torch.float32).unsqueeze(0).to(self.device)  # (1, 24, 8)
-
-        with torch.no_grad():
-            output = self.model(tensor)  # (1, 24)
-
-        raw = output.squeeze(0).cpu().numpy()
-        # Scale output back to AQI range (model outputs normalized 0-1)
-        return np.clip(raw * 300, 0, 500)
+        X = np.vstack(rows)  # (24, 9)
+        return self.model.predict(X)  # (24,)
 
     def _physics_predict(self, current_aqi: float, data: dict) -> np.ndarray:
-        """Physics-based fallback using pollutant decay patterns."""
-        base = current_aqi * HOUR_DECAY
-        # Add temperature effect: higher temp → higher ozone → higher AQI
-        temp_factor = 1 + max(0, (data['temperature'] - 25) * 0.005)
-        # Add humidity effect: high humidity traps particles
+        base           = current_aqi * HOUR_DECAY
+        temp_factor    = 1 + max(0, (data['temperature'] - 25) * 0.005)
         humidity_factor = 1 + max(0, (data['humidity'] - 60) * 0.002)
         return np.clip(base * temp_factor * humidity_factor, 0, 500)
 
+    def _calculate_current_aqi(self, data: dict) -> float:
+        return max(self._pm25_to_aqi(data['pm25']), self._pm10_to_aqi(data['pm10']))
+
     def _pm25_to_aqi(self, pm25: float) -> float:
-        breakpoints = [
-            (0.0, 12.0, 0, 50),
-            (12.1, 35.4, 51, 100),
-            (35.5, 55.4, 101, 150),
-            (55.5, 150.4, 151, 200),
-            (150.5, 250.4, 201, 300),
-            (250.5, 500.4, 301, 500),
-        ]
-        return self._calc_aqi(pm25, breakpoints)
+        return self._calc_aqi(pm25, [
+            (0.0, 12.0, 0, 50), (12.1, 35.4, 51, 100),
+            (35.5, 55.4, 101, 150), (55.5, 150.4, 151, 200),
+            (150.5, 250.4, 201, 300), (250.5, 500.4, 301, 500),
+        ])
 
     def _pm10_to_aqi(self, pm10: float) -> float:
-        breakpoints = [
-            (0, 54, 0, 50),
-            (55, 154, 51, 100),
-            (155, 254, 101, 150),
-            (255, 354, 151, 200),
-            (355, 424, 201, 300),
-            (425, 604, 301, 500),
-        ]
-        return self._calc_aqi(pm10, breakpoints)
+        return self._calc_aqi(pm10, [
+            (0, 54, 0, 50), (55, 154, 51, 100),
+            (155, 254, 101, 150), (255, 354, 151, 200),
+            (355, 424, 201, 300), (425, 604, 301, 500),
+        ])
 
     def _calc_aqi(self, concentration: float, breakpoints: list) -> float:
         for c_low, c_high, i_low, i_high in breakpoints:

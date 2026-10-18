@@ -1,22 +1,21 @@
-import pandas as pd
-import numpy as np
 
+import os
+
+import numpy as np
+import pandas as pd
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 
 DATA_PATH = "data/lucknow_features.csv"
+MODEL_PATH = "saved_models/aqi_xgboost.json"
 
 
 # ==========================================
 # 1. Load dataset
 # ==========================================
 
-df = pd.read_csv(
-    DATA_PATH,
-    parse_dates=["timestamp"]
-)
-
+df = pd.read_csv(DATA_PATH, parse_dates=["timestamp"])
 df = df.sort_values("timestamp").reset_index(drop=True)
 
 print("Total samples:", len(df))
@@ -25,10 +24,10 @@ print("End  :", df["timestamp"].max())
 
 
 # ==========================================
-# 2. Define features and target
+# 2. Define all 21 features
 # ==========================================
 
-features = [
+lag_features = [
     "lag_1",
     "lag_2",
     "lag_3",
@@ -40,17 +39,29 @@ features = [
     "lag_48",
     "lag_72",
     "lag_168",
+]
+
+rolling_features = [
+    "rolling_mean_3",
+    "rolling_mean_6",
+    "rolling_mean_24",
+    "rolling_std_6",
+    "rolling_max_24",
+    "rolling_min_24",
+]
+
+time_features = [
     "hour",
     "day_of_week",
     "month",
     "day_of_year",
 ]
 
+features = lag_features + rolling_features + time_features
 target = "target"
 
-
-X = df[features]
-y = df[target]
+print("\nNumber of features:", len(features))
+print("Features:", features)
 
 
 # ==========================================
@@ -60,18 +71,14 @@ y = df[target]
 train_end = pd.Timestamp("2023-01-01 00:00:00")
 validation_end = pd.Timestamp("2023-10-01 00:00:00")
 
-train = df[
-    df["timestamp"] < train_end
-]
+train = df[df["timestamp"] < train_end].copy()
 
 validation = df[
     (df["timestamp"] >= train_end)
     & (df["timestamp"] < validation_end)
-]
+].copy()
 
-test = df[
-    df["timestamp"] >= validation_end
-]
+test = df[df["timestamp"] >= validation_end].copy()
 
 
 X_train = train[features]
@@ -84,24 +91,19 @@ X_test = test[features]
 y_test = test[target]
 
 
-print()
-print("==============================")
-print("DATA SPLIT")
-print("==============================")
+print("\n" + "=" * 45)
+print("CHRONOLOGICAL DATA SPLIT")
+print("=" * 45)
 
-print("Train:")
-print(" ", len(train))
-print(" ", train["timestamp"].min(), "→", train["timestamp"].max())
-
-print()
-print("Validation:")
-print(" ", len(validation))
-print(" ", validation["timestamp"].min(), "→", validation["timestamp"].max())
-
-print()
-print("Test:")
-print(" ", len(test))
-print(" ", test["timestamp"].min(), "→", test["timestamp"].max())
+for name, split in [
+    ("Training", train),
+    ("Validation", validation),
+    ("Testing", test),
+]:
+    print(f"\n{name}:")
+    print("  Samples:", len(split))
+    print("  Start:", split["timestamp"].min())
+    print("  End:", split["timestamp"].max())
 
 
 # ==========================================
@@ -117,34 +119,38 @@ model = XGBRegressor(
     objective="reg:squarederror",
     eval_metric="mae",
     random_state=42,
-    n_jobs=-1
+    n_jobs=-1,
 )
 
 
 # ==========================================
-# 5. Train
+# 5. Train model
 # ==========================================
 
-print()
-print("==============================")
+print("\n" + "=" * 45)
 print("TRAINING XGBOOST")
-print("==============================")
+print("=" * 45)
 
 model.fit(
     X_train,
     y_train,
     eval_set=[(X_val, y_val)],
-    verbose=False
+    verbose=False,
 )
-MODEL_PATH = "saved_models/aqi_xgboost.json"
 
-model.save_model(MODEL_PATH)
-
-print()
-print("Model saved:", MODEL_PATH)
 
 # ==========================================
-# 6. Predictions
+# 6. Save model
+# ==========================================
+
+os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+model.save_model(MODEL_PATH)
+
+print("\nModel saved:", MODEL_PATH)
+
+
+# ==========================================
+# 7. Generate predictions
 # ==========================================
 
 val_pred = model.predict(X_val)
@@ -152,7 +158,7 @@ test_pred = model.predict(X_test)
 
 
 # ==========================================
-# 7. Evaluation
+# 8. Evaluate model
 # ==========================================
 
 val_mae = mean_absolute_error(y_val, val_pred)
@@ -162,63 +168,55 @@ test_mae = mean_absolute_error(y_test, test_pred)
 test_rmse = np.sqrt(mean_squared_error(y_test, test_pred))
 
 
-print()
-print("==============================")
+print("\n" + "=" * 45)
 print("MODEL RESULTS")
-print("==============================")
+print("=" * 45)
 
-print("Validation MAE :", round(val_mae, 2))
-print("Validation RMSE:", round(val_rmse, 2))
+print("\nValidation:")
+print("  MAE :", round(val_mae, 2))
+print("  RMSE:", round(val_rmse, 2))
 
-print()
-print("Test MAE       :", round(test_mae, 2))
-print("Test RMSE      :", round(test_rmse, 2))
+print("\nTest:")
+print("  MAE :", round(test_mae, 2))
+print("  RMSE:", round(test_rmse, 2))
 
 
 # ==========================================
-# 8. Baseline
+# 9. Persistence baseline
 # ==========================================
 
+# Predict the next hour using the latest observed AQI.
 baseline_pred = test["lag_1"]
 
-baseline_mae = mean_absolute_error(
-    y_test,
-    baseline_pred
-)
-
+baseline_mae = mean_absolute_error(y_test, baseline_pred)
 baseline_rmse = np.sqrt(
-    mean_squared_error(
-        y_test,
-        baseline_pred
-    )
+    mean_squared_error(y_test, baseline_pred)
 )
 
-print()
-print("==============================")
-print("BASELINE")
-print("==============================")
+print("\n" + "=" * 45)
+print("PERSISTENCE BASELINE")
+print("=" * 45)
 
 print("Baseline MAE :", round(baseline_mae, 2))
 print("Baseline RMSE:", round(baseline_rmse, 2))
 
 
 # ==========================================
-# 9. Feature importance
+# 10. Feature importance
 # ==========================================
 
 importance = pd.DataFrame({
     "feature": features,
-    "importance": model.feature_importances_
+    "importance": model.feature_importances_,
 })
 
 importance = importance.sort_values(
     "importance",
-    ascending=False
+    ascending=False,
 )
 
-print()
-print("==============================")
+print("\n" + "=" * 45)
 print("FEATURE IMPORTANCE")
-print("==============================")
+print("=" * 45)
 
 print(importance.to_string(index=False))

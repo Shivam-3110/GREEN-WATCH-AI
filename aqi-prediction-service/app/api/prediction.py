@@ -109,13 +109,12 @@ async def model_info():
     return {
         'success': True,
         'model': {
-            'name': 'AQI LSTM Prediction Model',
+            'name': 'AQI XGBoost Prediction Model',
             'version': '1.0.0',
-            'type': 'LSTM (PyTorch)' if aqi_prediction_service.model_loaded else 'Physics-based fallback',
+            'type': 'XGBoost' if aqi_prediction_service.model_loaded else 'Physics-based fallback',
             'trained': aqi_prediction_service.model_loaded,
-            'device': aqi_prediction_service.device,
             'input_features': ['pm25', 'pm10', 'no2', 'so2', 'co', 'o3', 'temperature', 'humidity'],
             'output': '24-hour AQI forecast',
-            'upgrade_path': 'Run training/train.py to train the LSTM model',
+            'upgrade_path': 'Run training/train.py to train the XGBoost model',
         },
     }
