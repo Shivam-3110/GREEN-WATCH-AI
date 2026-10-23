@@ -5,7 +5,10 @@ import os
 from app.utils.preprocessor import prepare_input, aqi_to_category, get_health_advice, FEATURES
 
 MODEL_DIR  = os.path.join(os.path.dirname(__file__), '..', '..', 'saved_models')
-MODEL_PATH = os.path.join(MODEL_DIR, 'aqi_xgboost.json')
+# This legacy service uses the pollutant/weather feature schema trained by
+# training/train.py. The historical one-hour AQI model is loaded separately by
+# aqi_prediction_service.one_hour_inference.
+MODEL_PATH = os.path.join(MODEL_DIR, 'aqi_pollutant_legacy_24h.json')
 
 # Decay factors for physics-based fallback (pollutant dispersion over 24h)
 HOUR_DECAY = np.array([

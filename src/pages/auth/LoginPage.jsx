@@ -35,7 +35,7 @@ function LoginPage() {
     try {
       setIsSubmitting(true)
       await loginUser(form)
-      navigate('/dashboard', { replace: true })
+      navigate('/air-quality', { replace: true })
     } catch (error) {
       setApiError(error.response?.data?.message || 'Login failed. Please try again.')
     } finally {

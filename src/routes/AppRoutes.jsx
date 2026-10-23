@@ -5,7 +5,6 @@ import AirQualityPage from '../pages/AirQualityPage'
 import MapPage from '../pages/MapPage'
 import CarbonCalculatorPage from '../pages/CarbonCalculatorPage'
 import AlertTestPage from '../pages/AlertTestPage'
-import EcoChallengePage from '../pages/EcoChallengePage'
 import CitySimulatorPage from '../pages/CitySimulatorPage'
 import SettingsPage from '../pages/SettingsPage'
 import NotFoundPage from '../pages/NotFoundPage'
@@ -43,13 +42,12 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/air-quality" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/air-quality" element={<AirQualityPage />} />
         <Route path="/map-intelligence" element={<MapPage />} />
         <Route path="/alerts" element={<AlertTestPage />} />
         <Route path="/carbon-calculator" element={<CarbonCalculatorPage />} />
-        <Route path="/eco-challenge" element={<EcoChallengePage />} />
         <Route path="/city-simulator" element={<CitySimulatorPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/chat" element={<Navigate to="/alerts" replace />} />

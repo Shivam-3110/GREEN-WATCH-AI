@@ -17,9 +17,7 @@ import { motion } from 'framer-motion'
 import apiClient from '../services/apiClient'
 import GlassPanel from '../components/dashboard/GlassPanel'
 import MetricCard from '../components/dashboard/MetricCard'
-import EcoScoreWidget from '../components/dashboard/EcoScoreWidget'
 import { getLocationCoordinates } from '../utils/location'
-import { alertNotifications } from '../data/dashboardData'
 
 const carbonColors = ['#bef264', '#34d399', '#67e8f9', '#facc15']
 
@@ -190,38 +188,32 @@ function DashboardPage() {
         )}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.45fr_0.75fr]">
-        <GlassPanel title="Pollution Analytics" action="AQI / PM trend">
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={pollutionTrend.length > 0 ? pollutionTrend : []} margin={{ left: -18, right: 8, top: 12, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="aqi-fill" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="5%" stopColor="#67e8f9" stopOpacity={0.34} />
-                    <stop offset="95%" stopColor="#67e8f9" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="pm-fill" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="5%" stopColor="#bef264" stopOpacity={0.28} />
-                    <stop offset="95%" stopColor="#bef264" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="4 8" />
-                <XAxis dataKey="time" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="aqi" stroke="#67e8f9" fill="url(#aqi-fill)" strokeWidth={3} />
-                <Area type="monotone" dataKey="pm25" stroke="#bef264" fill="url(#pm-fill)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassPanel>
+      <GlassPanel title="Pollution Analytics" action="AQI / PM trend">
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={pollutionTrend.length > 0 ? pollutionTrend : []} margin={{ left: -18, right: 8, top: 12, bottom: 0 }}>
+              <defs>
+                <linearGradient id="aqi-fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="5%" stopColor="#67e8f9" stopOpacity={0.34} />
+                  <stop offset="95%" stopColor="#67e8f9" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="pm-fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="5%" stopColor="#bef264" stopOpacity={0.28} />
+                  <stop offset="95%" stopColor="#bef264" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="4 8" />
+              <XAxis dataKey="time" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Area type="monotone" dataKey="aqi" stroke="#67e8f9" fill="url(#aqi-fill)" strokeWidth={3} />
+              <Area type="monotone" dataKey="pm25" stroke="#bef264" fill="url(#pm-fill)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </GlassPanel>
 
-        <GlassPanel title="Eco Score Widget" action="Personal index">
-          <EcoScoreWidget />
-        </GlassPanel>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr_0.9fr]">
+      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <GlassPanel title="Carbon Footprint Stats" action="kg CO2e">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -293,30 +285,7 @@ function DashboardPage() {
           </div>
         </GlassPanel>
 
-        <GlassPanel title="Alert Notifications" action={`${alertNotifications.length} active`}>
-          <div className="space-y-3">
-            {alertNotifications.map((alert, index) => (
-              <motion.article
-                key={alert.title}
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.08 }}
-                className="rounded-lg border border-white/10 bg-black/22 p-3"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-white">{alert.title}</p>
-                    <p className="mt-1 text-xs leading-5 text-slate-400">{alert.message}</p>
-                  </div>
-                  <span className="rounded-md border border-emerald-300/20 bg-emerald-400/10 px-2 py-1 text-xs text-emerald-200">
-                    {alert.severity}
-                  </span>
-                </div>
-                <p className="mt-3 text-xs text-slate-500">{alert.time}</p>
-              </motion.article>
-            ))}
-          </div>
-        </GlassPanel>
+
       </div>
     </section>
   )

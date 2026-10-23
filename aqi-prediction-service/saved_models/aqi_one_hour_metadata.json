@@ -1,0 +1,32 @@
+{
+  "feature_names": [
+    "lag_1",
+    "lag_2",
+    "lag_3",
+    "lag_4",
+    "lag_5",
+    "lag_6",
+    "lag_12",
+    "lag_24",
+    "lag_48",
+    "lag_72",
+    "lag_168",
+    "rolling_mean_3",
+    "rolling_mean_6",
+    "rolling_mean_24",
+    "rolling_std_6",
+    "rolling_max_24",
+    "rolling_min_24",
+    "current_aqi",
+    "hour",
+    "day_of_week",
+    "month",
+    "day_of_year"
+  ],
+  "target": "target",
+  "horizon_hours": 1,
+  "input_location": "Lucknow city-median AQI history",
+  "training_data": "data/lucknow_hourly.csv -> data/lucknow_features.csv",
+  "xgboost_version": "3.2.0",
+  "scikit_learn_version": "1.9.1"
+}

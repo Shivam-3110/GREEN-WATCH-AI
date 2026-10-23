@@ -7,7 +7,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 
 DATA_PATH = "data/lucknow_hourly.csv"
-MODEL_PATH = "saved_models/aqi_xgboost.json"
+MODEL_PATH = "saved_models/aqi_xgboost_recursive_legacy.json"
 OUTPUT_PATH = "data/forecast_evaluation.csv"
 HOURLY_OUTPUT_PATH = "data/hourly_forecast_metrics.csv"
 

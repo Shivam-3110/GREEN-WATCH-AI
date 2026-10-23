@@ -2,7 +2,7 @@
 AQI XGBoost Training Script
 ============================
 Collects AQI data from OpenWeatherMap, trains an XGBoost model,
-and saves it to saved_models/aqi_xgboost.json
+    and saves it to saved_models/aqi_pollutant_legacy_24h.json
 
 Usage:
     cd aqi-prediction-service
@@ -33,7 +33,7 @@ load_dotenv()
 # ── Config ────────────────────────────────────────────────────────────────────
 API_KEY    = os.getenv('OPENWEATHER_API_KEY')
 SAVED_DIR  = os.path.join(os.path.dirname(__file__), '..', 'saved_models')
-MODEL_PATH = os.path.join(SAVED_DIR, 'aqi_xgboost.json')
+MODEL_PATH = os.path.join(SAVED_DIR, 'aqi_pollutant_legacy_24h.json')
 SCALER_PATH = os.path.join(SAVED_DIR, 'scaler.pkl')
 FEATURES   = ['pm25', 'pm10', 'no2', 'so2', 'co', 'o3', 'temperature', 'humidity']
 

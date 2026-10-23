@@ -1,0 +1,81 @@
+{
+  "splits": {
+    "train": {
+      "rows": 42556,
+      "start": "2017-10-03T18:00:00",
+      "end": "2022-12-31T22:00:00"
+    },
+    "validation": {
+      "rows": 6201,
+      "start": "2023-01-01T00:00:00",
+      "end": "2023-09-30T22:00:00"
+    },
+    "test": {
+      "rows": 2095,
+      "start": "2023-10-01T00:00:00",
+      "end": "2023-12-31T22:00:00"
+    }
+  },
+  "model": {
+    "train": {
+      "mae": 18.397283691449637,
+      "rmse": 28.81803355088502,
+      "r2": 0.9437736061655632
+    },
+    "validation": {
+      "mae": 11.98846514750596,
+      "rmse": 20.64455022032517,
+      "r2": 0.8929874165564365
+    },
+    "test": {
+      "mae": 16.4291581920906,
+      "rmse": 23.992904225095984,
+      "r2": 0.9127251349618344
+    }
+  },
+  "persistence_baseline": {
+    "train": {
+      "mae": 21.077920857223422,
+      "rmse": 34.82011617122563,
+      "r2": 0.917913455051995
+    },
+    "validation": {
+      "mae": 12.123770359619416,
+      "rmse": 22.534473402625224,
+      "r2": 0.8724974632916225
+    },
+    "test": {
+      "mae": 18.804057279236275,
+      "rmse": 28.488416186266118,
+      "r2": 0.8769560808381189
+    }
+  },
+  "improvement_over_baseline": {
+    "train": {
+      "mae_absolute": 2.680637165773785,
+      "mae_percent": 12.717749458932655,
+      "rmse_absolute": 6.002082620340609,
+      "rmse_percent": 17.237399757156936,
+      "r2_absolute": 0.02586015111356821
+    },
+    "validation": {
+      "mae_absolute": 0.13530521211345636,
+      "mae_percent": 1.116032456075849,
+      "rmse_absolute": 1.8899231823000555,
+      "rmse_percent": 8.386808728709333,
+      "r2_absolute": 0.020489953264814065
+    },
+    "test": {
+      "mae_absolute": 2.3748990871456748,
+      "mae_percent": 12.62971629940776,
+      "rmse_absolute": 4.495511961170134,
+      "rmse_percent": 15.780140011213962,
+      "r2_absolute": 0.03576905412371545
+    }
+  },
+  "target": "AQI at timestamp + 1 hour",
+  "split_method": "chronological fixed cutoffs; test starts 2023-10-01",
+  "prediction_horizon_hours": 1,
+  "feature_count": 22,
+  "best_iteration": 228
+}
