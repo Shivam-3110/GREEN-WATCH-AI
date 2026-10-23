@@ -1,0 +1,429 @@
+{
+  "evaluation_type": "Previously inspected Q4 2023 descriptive comparison; not an untouched confirmatory test.",
+  "origin_convention": "Daily 23:00 origins, target is origin + lead hours; persistence repeats observed origin AQI.",
+  "origin_range": {
+    "start": "2023-10-01T23:00:00",
+    "end": "2023-12-31T23:00:00"
+  },
+  "attempted_origins": 92,
+  "completed_origins": 71,
+  "skipped_origins": 21,
+  "skip_details": [
+    {
+      "origin_timestamp": "2023-11-02T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-03T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-04T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-05T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-06T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-07T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-08T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-09T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-10T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-11T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-12T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-13T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-11-14T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-15T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-16T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-17T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-18T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-19T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-20T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "ValueError: history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin_timestamp": "2023-12-31T23:00:00",
+      "reason": "incomplete_target_timestamp_window",
+      "missing_timestamps": 24
+    }
+  ],
+  "failure_details": [],
+  "missing_target_pairs": 2,
+  "valid_common_pairs": 1702,
+  "data_range": {
+    "start": "2017-09-26 18:00:00",
+    "end": "2023-12-31 23:00:00"
+  },
+  "model_artifact_dir": "C:\\Users\\nitsr\\OneDrive\\Documents\\GREEN-WATCH AI\\aqi-prediction-service\\saved_models\\direct_horizons",
+  "recursive_artifact": "saved_models/aqi_xgboost.json",
+  "metrics_pairing": "For a given lead, all methods are scored on the identical intersection with observed target, finite predictions, eligible origin and available persistence value.",
+  "improvement_definition": "baseline MAE - direct MAE; positive favors direct; percent is absolute improvement divided by baseline MAE (null if baseline MAE is zero).",
+  "uncertainty": "95% percentile bootstrap intervals of paired absolute-error differences, resampling forecast origin rows; seed 42, 2000 repetitions.",
+  "category_thresholds": {
+    "Good": "<=50",
+    "Moderate": "<=100",
+    "Poor": "<=150",
+    "Very Poor": "<=200",
+    "Severe": ">200"
+  },
+  "event_thresholds_training_only": {
+    "1": {
+      "large_rise_threshold": 55.0,
+      "large_fall_threshold": -49.0,
+      "positive_training_changes": 19971,
+      "negative_training_changes": 21087,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "2": {
+      "large_rise_threshold": 84.0,
+      "large_fall_threshold": -74.70000000000005,
+      "positive_training_changes": 20044,
+      "negative_training_changes": 21527,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "3": {
+      "large_rise_threshold": 107.0,
+      "large_fall_threshold": -96.0,
+      "positive_training_changes": 20201,
+      "negative_training_changes": 21517,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "4": {
+      "large_rise_threshold": 125.0,
+      "large_fall_threshold": -112.5,
+      "positive_training_changes": 20293,
+      "negative_training_changes": 21573,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "5": {
+      "large_rise_threshold": 139.0,
+      "large_fall_threshold": -126.0,
+      "positive_training_changes": 20442,
+      "negative_training_changes": 21507,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "6": {
+      "large_rise_threshold": 147.20000000000073,
+      "large_fall_threshold": -136.0,
+      "positive_training_changes": 20587,
+      "negative_training_changes": 21386,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "7": {
+      "large_rise_threshold": 153.0,
+      "large_fall_threshold": -140.04999999999995,
+      "positive_training_changes": 20561,
+      "negative_training_changes": 21430,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "8": {
+      "large_rise_threshold": 153.0,
+      "large_fall_threshold": -144.0,
+      "positive_training_changes": 20640,
+      "negative_training_changes": 21383,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "9": {
+      "large_rise_threshold": 153.0,
+      "large_fall_threshold": -143.0,
+      "positive_training_changes": 20661,
+      "negative_training_changes": 21352,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "10": {
+      "large_rise_threshold": 150.0,
+      "large_fall_threshold": -144.0,
+      "positive_training_changes": 20886,
+      "negative_training_changes": 21115,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "11": {
+      "large_rise_threshold": 147.0,
+      "large_fall_threshold": -144.5,
+      "positive_training_changes": 21032,
+      "negative_training_changes": 20963,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "12": {
+      "large_rise_threshold": 144.0,
+      "large_fall_threshold": -146.0,
+      "positive_training_changes": 21261,
+      "negative_training_changes": 20772,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "13": {
+      "large_rise_threshold": 144.0,
+      "large_fall_threshold": -152.64999999999986,
+      "positive_training_changes": 21411,
+      "negative_training_changes": 20618,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "14": {
+      "large_rise_threshold": 146.5,
+      "large_fall_threshold": -158.0,
+      "positive_training_changes": 21542,
+      "negative_training_changes": 20504,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "15": {
+      "large_rise_threshold": 150.0,
+      "large_fall_threshold": -163.0,
+      "positive_training_changes": 21485,
+      "negative_training_changes": 20559,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "16": {
+      "large_rise_threshold": 154.0,
+      "large_fall_threshold": -167.0,
+      "positive_training_changes": 21434,
+      "negative_training_changes": 20606,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "17": {
+      "large_rise_threshold": 155.0,
+      "large_fall_threshold": -169.0,
+      "positive_training_changes": 21495,
+      "negative_training_changes": 20516,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "18": {
+      "large_rise_threshold": 154.0,
+      "large_fall_threshold": -167.0,
+      "positive_training_changes": 21464,
+      "negative_training_changes": 20555,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "19": {
+      "large_rise_threshold": 150.0,
+      "large_fall_threshold": -163.0,
+      "positive_training_changes": 21494,
+      "negative_training_changes": 20480,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "20": {
+      "large_rise_threshold": 144.0,
+      "large_fall_threshold": -156.0,
+      "positive_training_changes": 21421,
+      "negative_training_changes": 20572,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "21": {
+      "large_rise_threshold": 137.0,
+      "large_fall_threshold": -147.0,
+      "positive_training_changes": 21410,
+      "negative_training_changes": 20571,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "22": {
+      "large_rise_threshold": 130.0,
+      "large_fall_threshold": -138.0,
+      "positive_training_changes": 21296,
+      "negative_training_changes": 20634,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "23": {
+      "large_rise_threshold": 123.0,
+      "large_fall_threshold": -130.5,
+      "positive_training_changes": 21347,
+      "negative_training_changes": 20570,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    },
+    "24": {
+      "large_rise_threshold": 120.0,
+      "large_fall_threshold": -130.0,
+      "positive_training_changes": 21489,
+      "negative_training_changes": 20407,
+      "threshold_minimum_training_events": 30,
+      "evaluation_minimum_events": 10,
+      "quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      }
+    }
+  },
+  "large_event_policy": "Per-lead q90 of positive origin-to-target changes and q10 of negative changes, requiring >=30 training examples per direction to define thresholds; event metrics emitted only with >=10 common event pairs.",
+  "test_independence_limitation": "Q4 2023 was previously analyzed in recursive reports and cannot be considered an untouched test."
+}

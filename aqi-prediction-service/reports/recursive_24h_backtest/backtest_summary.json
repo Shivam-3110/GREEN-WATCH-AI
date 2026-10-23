@@ -1,0 +1,136 @@
+{
+  "dataset_range": {
+    "start": "2017-09-26T18:00:00",
+    "end": "2023-12-31T23:00:00"
+  },
+  "backtest_origin_range": {
+    "start": "2023-10-01T23:00:00",
+    "end": "2023-12-31T23:00:00"
+  },
+  "origin_convention": "Daily at 23:00; origin is the final observed timestamp. Lead 1 is origin + 1 hour.",
+  "target_window": "The next 24 hourly timestamps, origin + 1 hour through origin + 24 hours inclusive.",
+  "attempted_origins": 92,
+  "completed_origins": 71,
+  "skipped_origins": 21,
+  "skip_reasons": {
+    "forecast_error": 20,
+    "incomplete_target_timestamp_window": 1
+  },
+  "missing_target_pairs": 2,
+  "forecast_prediction_pairs": 1704,
+  "scored_prediction_target_pairs": 1702,
+  "skipped_origin_details": [
+    {
+      "origin_timestamp": "2023-11-02T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-03T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-04T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-05T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-06T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-07T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-08T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-09T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-10T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-11T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-12T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-13T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-11-14T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-15T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-16T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-17T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-18T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-19T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-20T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-21T23:00:00",
+      "reason": "forecast_error",
+      "detail": "history must contain 169 consecutive observed hourly positions through forecast_start"
+    },
+    {
+      "origin_timestamp": "2023-12-31T23:00:00",
+      "reason": "incomplete_target_timestamp_window",
+      "missing_timestamps": 24
+    }
+  ],
+  "model_artifact": "saved_models\\aqi_xgboost.json",
+  "metric_definitions": {
+    "error": "prediction minus actual; MAE/RMSE use valid actual targets only",
+    "difference": "model metric minus persistence metric; negative favors the model",
+    "cumulative": "pooled errors over all lead hours 1 through the horizon across completed windows",
+    "baseline": "AQI observed at the origin repeated for all 24 lead hours"
+  }
+}

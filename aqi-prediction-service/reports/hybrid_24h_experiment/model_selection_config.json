@@ -1,0 +1,392 @@
+{
+  "selection_policy": "per_horizon_validation_mae",
+  "selection_rule": "Select lower MAE between direct and recursive on identical valid validation target pairs; ties or no pairs select recursive.",
+  "selection_by_horizon": {
+    "1": "recursive",
+    "2": "direct",
+    "3": "direct",
+    "4": "recursive",
+    "5": "recursive",
+    "6": "recursive",
+    "7": "recursive",
+    "8": "recursive",
+    "9": "recursive",
+    "10": "direct",
+    "11": "recursive",
+    "12": "recursive",
+    "13": "recursive",
+    "14": "recursive",
+    "15": "recursive",
+    "16": "recursive",
+    "17": "recursive",
+    "18": "direct",
+    "19": "direct",
+    "20": "direct",
+    "21": "direct",
+    "22": "direct",
+    "23": "direct",
+    "24": "direct"
+  },
+  "feature_schema": "canonical 22 features; shared feature builder",
+  "validation_origin_schedule": {
+    "start": "2023-01-01T23:00:00",
+    "end": "2023-09-29T23:00:00",
+    "cadence": "daily 23:00"
+  },
+  "validation_target_boundary_strictly_before": "2023-10-01T00:00:00",
+  "training_target_boundary_strictly_before": "2023-01-01T00:00:00",
+  "validation_period_also_used_for_early_stopping": "yes; direct and recursive artifacts used this period during training/model selection, so this hybrid selection validation is not an independent estimate.",
+  "final_comparison_period": "Q4 2023, previously inspected; descriptive only.",
+  "origin_timestamp_alignment": "target_timestamp = origin_timestamp + lead_hour hours",
+  "missing_history_policy": "Require 169 consecutive observed hourly AQI values; no interpolation.",
+  "recursive_model_training_period": {
+    "rows": 42556,
+    "start": "2017-10-03T18:00:00",
+    "end": "2022-12-31T22:00:00"
+  },
+  "recursive_model_validation_period": {
+    "rows": 6201,
+    "start": "2023-01-01T00:00:00",
+    "end": "2023-09-30T22:00:00"
+  },
+  "direct_model_training_period_by_horizon": {
+    "1": {
+      "rows": 42556,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T22:00:00",
+      "target_start": "2017-10-03T19:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "2": {
+      "rows": 42539,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T21:00:00",
+      "target_start": "2017-10-03T20:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "3": {
+      "rows": 42524,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T20:00:00",
+      "target_start": "2017-10-03T21:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "4": {
+      "rows": 42510,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T19:00:00",
+      "target_start": "2017-10-03T22:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "5": {
+      "rows": 42505,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T18:00:00",
+      "target_start": "2017-10-03T23:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "6": {
+      "rows": 42498,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T17:00:00",
+      "target_start": "2017-10-04T00:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "7": {
+      "rows": 42493,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T16:00:00",
+      "target_start": "2017-10-04T01:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "8": {
+      "rows": 42486,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T15:00:00",
+      "target_start": "2017-10-04T02:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "9": {
+      "rows": 42478,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T14:00:00",
+      "target_start": "2017-10-04T03:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "10": {
+      "rows": 42473,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T13:00:00",
+      "target_start": "2017-10-04T04:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "11": {
+      "rows": 42468,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T12:00:00",
+      "target_start": "2017-10-04T05:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "12": {
+      "rows": 42465,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T11:00:00",
+      "target_start": "2017-10-04T06:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "13": {
+      "rows": 42460,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T10:00:00",
+      "target_start": "2017-10-04T07:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "14": {
+      "rows": 42457,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T09:00:00",
+      "target_start": "2017-10-04T08:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "15": {
+      "rows": 42451,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T08:00:00",
+      "target_start": "2017-10-04T09:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "16": {
+      "rows": 42450,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T07:00:00",
+      "target_start": "2017-10-04T10:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "17": {
+      "rows": 42443,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T06:00:00",
+      "target_start": "2017-10-04T11:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "18": {
+      "rows": 42440,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T05:00:00",
+      "target_start": "2017-10-04T12:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "19": {
+      "rows": 42436,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T04:00:00",
+      "target_start": "2017-10-04T13:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "20": {
+      "rows": 42432,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T03:00:00",
+      "target_start": "2017-10-04T14:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "21": {
+      "rows": 42428,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T02:00:00",
+      "target_start": "2017-10-04T15:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "22": {
+      "rows": 42424,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T01:00:00",
+      "target_start": "2017-10-04T16:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "23": {
+      "rows": 42423,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-31T00:00:00",
+      "target_start": "2017-10-04T17:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    },
+    "24": {
+      "rows": 42421,
+      "origin_start": "2017-10-03T18:00:00",
+      "origin_end": "2022-12-30T23:00:00",
+      "target_start": "2017-10-04T18:00:00",
+      "target_end": "2022-12-31T23:00:00"
+    }
+  },
+  "direct_model_validation_period_by_horizon": {
+    "1": {
+      "rows": 6201,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T22:00:00",
+      "target_start": "2023-01-01T01:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "2": {
+      "rows": 6195,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T21:00:00",
+      "target_start": "2023-01-01T02:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "3": {
+      "rows": 6194,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T20:00:00",
+      "target_start": "2023-01-01T03:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "4": {
+      "rows": 6193,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T19:00:00",
+      "target_start": "2023-01-01T04:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "5": {
+      "rows": 6192,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T18:00:00",
+      "target_start": "2023-01-01T05:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "6": {
+      "rows": 6191,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T17:00:00",
+      "target_start": "2023-01-01T06:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "7": {
+      "rows": 6189,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T16:00:00",
+      "target_start": "2023-01-01T07:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "8": {
+      "rows": 6187,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T15:00:00",
+      "target_start": "2023-01-01T08:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "9": {
+      "rows": 6186,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T14:00:00",
+      "target_start": "2023-01-01T09:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "10": {
+      "rows": 6185,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T13:00:00",
+      "target_start": "2023-01-01T10:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "11": {
+      "rows": 6184,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T12:00:00",
+      "target_start": "2023-01-01T11:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "12": {
+      "rows": 6183,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T11:00:00",
+      "target_start": "2023-01-01T12:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "13": {
+      "rows": 6182,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T10:00:00",
+      "target_start": "2023-01-01T13:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "14": {
+      "rows": 6181,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T09:00:00",
+      "target_start": "2023-01-01T14:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "15": {
+      "rows": 6180,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T08:00:00",
+      "target_start": "2023-01-01T15:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "16": {
+      "rows": 6179,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T07:00:00",
+      "target_start": "2023-01-01T16:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "17": {
+      "rows": 6178,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T06:00:00",
+      "target_start": "2023-01-01T17:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "18": {
+      "rows": 6177,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T05:00:00",
+      "target_start": "2023-01-01T18:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "19": {
+      "rows": 6177,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T04:00:00",
+      "target_start": "2023-01-01T19:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "20": {
+      "rows": 6176,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T03:00:00",
+      "target_start": "2023-01-01T20:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "21": {
+      "rows": 6174,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T02:00:00",
+      "target_start": "2023-01-01T21:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "22": {
+      "rows": 6173,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T01:00:00",
+      "target_start": "2023-01-01T22:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "23": {
+      "rows": 6172,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-30T00:00:00",
+      "target_start": "2023-01-01T23:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    },
+    "24": {
+      "rows": 6171,
+      "origin_start": "2023-01-01T00:00:00",
+      "origin_end": "2023-09-29T23:00:00",
+      "target_start": "2023-01-02T00:00:00",
+      "target_end": "2023-09-30T23:00:00"
+    }
+  }
+}

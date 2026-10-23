@@ -1,0 +1,25 @@
+lead_hour,valid_pairs,direct_MAE,direct_RMSE,recursive_MAE,recursive_RMSE,selected_family,selection_rule
+1,199,11.560634670545108,16.514765982049784,11.560634670545108,16.514765982049784,recursive,lower validation MAE; ties or unavailable metrics select recursive
+2,198,17.54517433860085,26.161933261812802,17.652277917572945,26.608139488818214,direct,lower validation MAE; ties or unavailable metrics select recursive
+3,198,19.08414237667816,31.71885321833724,19.25404340570623,31.829431687662865,direct,lower validation MAE; ties or unavailable metrics select recursive
+4,199,20.538374550977544,33.63452186845856,20.39210437410441,33.503821263558706,recursive,lower validation MAE; ties or unavailable metrics select recursive
+5,198,23.25410983538387,36.85511154558979,22.45340917568014,35.61762561935159,recursive,lower validation MAE; ties or unavailable metrics select recursive
+6,199,21.33860635997063,33.36652745864103,20.43582162904979,31.538247517651502,recursive,lower validation MAE; ties or unavailable metrics select recursive
+7,199,19.356974156058612,29.34126564516607,18.736393530764172,27.756707220630844,recursive,lower validation MAE; ties or unavailable metrics select recursive
+8,199,22.11602777452325,34.764438232459995,21.325967683264956,32.67529140462729,recursive,lower validation MAE; ties or unavailable metrics select recursive
+9,198,25.191939903028082,37.485249121888714,24.721336788601345,36.4695943175445,recursive,lower validation MAE; ties or unavailable metrics select recursive
+10,199,26.748563124306838,40.45960687442937,28.04441289087037,41.0628695826589,direct,lower validation MAE; ties or unavailable metrics select recursive
+11,199,28.024643864463922,41.58787111554756,27.743783155278344,42.26741626052083,recursive,lower validation MAE; ties or unavailable metrics select recursive
+12,199,26.35599519739199,37.07522268190388,23.345528645731097,35.01768325914769,recursive,lower validation MAE; ties or unavailable metrics select recursive
+13,199,25.06918189274007,35.88184688589766,21.349143847748262,31.77928563799179,recursive,lower validation MAE; ties or unavailable metrics select recursive
+14,198,25.30628662880021,36.24936263730225,21.850121584805574,33.098740868791936,recursive,lower validation MAE; ties or unavailable metrics select recursive
+15,198,25.74711015489366,44.139507426181936,22.15669400764234,42.01782424451143,recursive,lower validation MAE; ties or unavailable metrics select recursive
+16,198,22.32287799950802,32.13307692494883,20.561120389687893,31.174271365050565,recursive,lower validation MAE; ties or unavailable metrics select recursive
+17,199,20.077586801806888,28.797984275796452,19.321323739823384,30.408200275606603,recursive,lower validation MAE; ties or unavailable metrics select recursive
+18,199,19.539845318051437,26.807664257212807,19.62718405795457,29.075664181295792,direct,lower validation MAE; ties or unavailable metrics select recursive
+19,198,19.476943141282206,27.383927941072862,19.862656814883454,28.586168720013838,direct,lower validation MAE; ties or unavailable metrics select recursive
+20,197,20.582976133085143,27.810431287506397,23.382895590690186,30.965243589117133,direct,lower validation MAE; ties or unavailable metrics select recursive
+21,198,23.14622416640773,31.61317321509149,27.61667049292362,37.69603873782771,direct,lower validation MAE; ties or unavailable metrics select recursive
+22,199,28.30340530165476,40.060166502614734,34.99046082233065,48.478704751216334,direct,lower validation MAE; ties or unavailable metrics select recursive
+23,199,31.297794974629003,44.059294762759684,38.91406662140659,53.36056824461738,direct,lower validation MAE; ties or unavailable metrics select recursive
+24,198,33.62862879820544,47.14093361410346,39.87917514762493,55.133955580290554,direct,lower validation MAE; ties or unavailable metrics select recursive

@@ -1,258 +1,33 @@
+"""Generate a recursive 24-hour Lucknow AQI forecast from hourly history."""
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
 
-from xgboost import XGBRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from aqi_prediction_service.recursive_forecast import forecast_24h
 
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_INPUT = ROOT / "data" / "lucknow_hourly.csv"
+DEFAULT_OUTPUT = ROOT / "data" / "forecast_24h.csv"
 
-DATA_PATH = "data/lucknow_hourly.csv"
-MODEL_PATH = "saved_models/aqi_xgboost_recursive_legacy.json"
 
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="CSV with timestamp,AQI columns")
+    parser.add_argument("--forecast-start", required=True, help="Hourly forecast origin, e.g. 2023-12-31 23:00:00")
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Output CSV path")
+    parser.add_argument("--model", type=Path, default=None, help="22-feature XGBoost model (default: aqi_xgboost.json)")
+    args = parser.parse_args()
 
-# ==========================================
-# 1. Load model
-# ==========================================
+    observations = pd.read_csv(args.input, parse_dates=["timestamp"])
+    result = forecast_24h(observations, args.forecast_start, model_path=args.model)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(args.output, index=False)
+    print(result.to_string(index=False))
+    print(f"Saved {len(result)} hourly predictions to {args.output}")
 
-model = XGBRegressor()
 
-model.load_model(MODEL_PATH)
-
-print("Model loaded successfully.")
-
-
-# ==========================================
-# 2. Load AQI data
-# ==========================================
-
-df = pd.read_csv(
-    DATA_PATH,
-    parse_dates=["timestamp"]
-)
-
-df = df.sort_values("timestamp").reset_index(drop=True)
-
-
-# ==========================================
-# 3. Choose a test starting point
-# ==========================================
-
-# We will start forecasting from a point
-# inside the test period.
-
-start_time = pd.Timestamp("2023-10-15 00:00:00")
-
-start_index = df.index[
-    df["timestamp"] == start_time
-][0]
-
-
-# ==========================================
-# 4. Get historical AQI
-# ==========================================
-
-history = df.loc[
-    :start_index,
-    ["timestamp", "AQI"]
-].copy()
-
-
-# ==========================================
-# 5. Feature creation function
-# ==========================================
-
-lag_hours = [
-    1, 2, 3, 4, 5, 6,
-    12,
-    24,
-    48,
-    72,
-    168
-]
-
-
-def create_features(history, timestamp):
-
-    row = {}
-
-    for lag in lag_hours:
-
-        lag_time = timestamp - pd.Timedelta(
-            hours=lag
-        )
-
-        matching = history[
-            history["timestamp"] == lag_time
-        ]
-
-        if len(matching) == 0:
-            return None
-
-        row[f"lag_{lag}"] = matching["AQI"].iloc[0]
-
-    row["hour"] = timestamp.hour
-
-    row["day_of_week"] = timestamp.dayofweek
-
-    row["month"] = timestamp.month
-
-    row["day_of_year"] = timestamp.dayofyear
-
-    return pd.DataFrame([row])
-
-
-# ==========================================
-# 6. Recursive 24-hour forecasting
-# ==========================================
-
-predictions = []
-
-current_time = start_time
-
-print()
-print("==============================")
-print("24-HOUR FORECAST")
-print("==============================")
-
-
-for step in range(1, 25):
-
-    next_time = current_time + pd.Timedelta(
-        hours=1
-    )
-
-    features = create_features(
-        history,
-        next_time
-    )
-
-    if features is None:
-
-        print(
-            "Cannot create features for:",
-            next_time
-        )
-
-        break
-
-    prediction = model.predict(
-        features
-    )[0]
-
-    predictions.append({
-        "timestamp": next_time,
-        "predicted_AQI": prediction
-    })
-
-    # Add prediction to history.
-    # This prediction becomes available
-    # as a lag for the next prediction.
-
-    history = pd.concat(
-        [
-            history,
-            pd.DataFrame({
-                "timestamp": [next_time],
-                "AQI": [prediction]
-            })
-        ],
-        ignore_index=True
-    )
-
-    current_time = next_time
-
-
-# ==========================================
-# 7. Create prediction dataframe
-# ==========================================
-
-forecast = pd.DataFrame(predictions)
-
-
-print()
-print(forecast.to_string(index=False))
-
-
-# ==========================================
-# 8. Compare against actual AQI
-# ==========================================
-
-actual = df[
-    df["timestamp"].isin(
-        forecast["timestamp"]
-    )
-][
-    ["timestamp", "AQI"]
-].rename(
-    columns={
-        "AQI": "actual_AQI"
-    }
-)
-
-
-results = forecast.merge(
-    actual,
-    on="timestamp",
-    how="left"
-)
-
-
-# ==========================================
-# 9. Calculate error at different horizons
-# ==========================================
-
-print()
-print("==============================")
-print("FORECAST EVALUATION")
-print("==============================")
-
-
-for horizon in [1, 6, 12, 24]:
-
-    subset = results.iloc[:horizon]
-
-    subset = subset.dropna(
-        subset=["actual_AQI"]
-    )
-
-    if len(subset) == 0:
-        continue
-
-    mae = mean_absolute_error(
-        subset["actual_AQI"],
-        subset["predicted_AQI"]
-    )
-
-    rmse = np.sqrt(
-        mean_squared_error(
-            subset["actual_AQI"],
-            subset["predicted_AQI"]
-        )
-    )
-
-    print()
-    print(f"{horizon}-hour horizon")
-
-    print(
-        "MAE :",
-        round(mae, 2)
-    )
-
-    print(
-        "RMSE:",
-        round(rmse, 2)
-    )
-
-
-# ==========================================
-# 10. Save forecast
-# ==========================================
-
-OUTPUT_PATH = "data/forecast_24h.csv"
-
-results.to_csv(
-    OUTPUT_PATH,
-    index=False
-)
-
-print()
-print("Forecast saved:", OUTPUT_PATH)
+if __name__ == "__main__":
+    main()

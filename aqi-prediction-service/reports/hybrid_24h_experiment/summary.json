@@ -1,0 +1,833 @@
+{
+  "model_selection": {
+    "selection_policy": "per_horizon_validation_mae",
+    "selection_rule": "Select lower MAE between direct and recursive on identical valid validation target pairs; ties or no pairs select recursive.",
+    "selection_by_horizon": {
+      "1": "recursive",
+      "2": "direct",
+      "3": "direct",
+      "4": "recursive",
+      "5": "recursive",
+      "6": "recursive",
+      "7": "recursive",
+      "8": "recursive",
+      "9": "recursive",
+      "10": "direct",
+      "11": "recursive",
+      "12": "recursive",
+      "13": "recursive",
+      "14": "recursive",
+      "15": "recursive",
+      "16": "recursive",
+      "17": "recursive",
+      "18": "direct",
+      "19": "direct",
+      "20": "direct",
+      "21": "direct",
+      "22": "direct",
+      "23": "direct",
+      "24": "direct"
+    },
+    "feature_schema": "canonical 22 features; shared feature builder",
+    "validation_origin_schedule": {
+      "start": "2023-01-01T23:00:00",
+      "end": "2023-09-29T23:00:00",
+      "cadence": "daily 23:00"
+    },
+    "validation_target_boundary_strictly_before": "2023-10-01T00:00:00",
+    "training_target_boundary_strictly_before": "2023-01-01T00:00:00",
+    "validation_period_also_used_for_early_stopping": "yes; direct and recursive artifacts used this period during training/model selection, so this hybrid selection validation is not an independent estimate.",
+    "final_comparison_period": "Q4 2023, previously inspected; descriptive only.",
+    "origin_timestamp_alignment": "target_timestamp = origin_timestamp + lead_hour hours",
+    "missing_history_policy": "Require 169 consecutive observed hourly AQI values; no interpolation."
+  },
+  "validation_skipped_origins": 73,
+  "validation_skip_details": [
+    {
+      "origin": "2023-01-01T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-22T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-23T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-24T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-25T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-26T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-01-27T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-08T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-09T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-10T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-11T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-12T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-13T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-14T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-17T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-18T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-19T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-20T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-22T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-03-23T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-13T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-14T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-15T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-16T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-17T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-18T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-19T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-20T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-22T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-23T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-24T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-25T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-26T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-27T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-04-28T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-10T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-11T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-12T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-13T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-14T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-15T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-05-16T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-02T23:00:00",
+      "reason": "missing_AQI_at_origin"
+    },
+    {
+      "origin": "2023-06-03T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-04T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-05T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-06T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-07T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-08T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-09T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-14T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-15T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-16T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-17T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-18T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-19T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-20T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-22T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-23T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-24T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-25T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-06-26T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-22T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-23T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-24T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-25T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-26T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-07-27T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    }
+  ],
+  "validation_inference_failures": [],
+  "evaluation": "Q4 2023 descriptive comparison; not an untouched confirmatory test.",
+  "q4_origins_attempted": 92,
+  "q4_origins_with_forecasts": 71,
+  "q4_skipped_origins": 21,
+  "q4_skip_details": [
+    {
+      "origin": "2023-11-02T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-03T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-04T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-05T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-06T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-07T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-08T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-09T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-10T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-11T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-12T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-13T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-11-14T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-15T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-16T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-17T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-18T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-19T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-20T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-21T23:00:00",
+      "reason": "insufficient_or_missing_history",
+      "detail": "history must contain 169 consecutive observed hourly positions"
+    },
+    {
+      "origin": "2023-12-31T23:00:00",
+      "reason": "incomplete_target_timestamp_window",
+      "missing_timestamps": 24
+    }
+  ],
+  "q4_inference_failures": [],
+  "valid_pairs_total": 1702,
+  "missing_target_pairs": 2,
+  "weighted_category_agreement": {
+    "recursive": 0.5528789659224442,
+    "direct": 0.5299647473560517,
+    "hybrid": 0.54524089306698,
+    "persistence": 0.4471210340775558
+  },
+  "category_thresholds": {
+    "Good": "<=50",
+    "Moderate": "<=100",
+    "Poor": "<=150",
+    "Very Poor": "<=200",
+    "Severe": ">200"
+  },
+  "event_thresholds_training_only": {
+    "1": {
+      "rise_threshold": 55.0,
+      "fall_threshold": -49.0,
+      "rise_training_events": 19971,
+      "fall_training_events": 21087,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "2": {
+      "rise_threshold": 84.0,
+      "fall_threshold": -74.70000000000005,
+      "rise_training_events": 20044,
+      "fall_training_events": 21527,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "3": {
+      "rise_threshold": 107.0,
+      "fall_threshold": -96.0,
+      "rise_training_events": 20201,
+      "fall_training_events": 21517,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "4": {
+      "rise_threshold": 125.0,
+      "fall_threshold": -112.5,
+      "rise_training_events": 20293,
+      "fall_training_events": 21573,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "5": {
+      "rise_threshold": 139.0,
+      "fall_threshold": -126.0,
+      "rise_training_events": 20442,
+      "fall_training_events": 21507,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "6": {
+      "rise_threshold": 147.20000000000073,
+      "fall_threshold": -136.0,
+      "rise_training_events": 20587,
+      "fall_training_events": 21386,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "7": {
+      "rise_threshold": 153.0,
+      "fall_threshold": -140.04999999999995,
+      "rise_training_events": 20561,
+      "fall_training_events": 21430,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "8": {
+      "rise_threshold": 153.0,
+      "fall_threshold": -144.0,
+      "rise_training_events": 20640,
+      "fall_training_events": 21383,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "9": {
+      "rise_threshold": 153.0,
+      "fall_threshold": -143.0,
+      "rise_training_events": 20661,
+      "fall_training_events": 21352,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "10": {
+      "rise_threshold": 150.0,
+      "fall_threshold": -144.0,
+      "rise_training_events": 20886,
+      "fall_training_events": 21115,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "11": {
+      "rise_threshold": 147.0,
+      "fall_threshold": -144.5,
+      "rise_training_events": 21032,
+      "fall_training_events": 20963,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "12": {
+      "rise_threshold": 144.0,
+      "fall_threshold": -146.0,
+      "rise_training_events": 21261,
+      "fall_training_events": 20772,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "13": {
+      "rise_threshold": 144.0,
+      "fall_threshold": -152.64999999999986,
+      "rise_training_events": 21411,
+      "fall_training_events": 20618,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "14": {
+      "rise_threshold": 146.5,
+      "fall_threshold": -158.0,
+      "rise_training_events": 21542,
+      "fall_training_events": 20504,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "15": {
+      "rise_threshold": 150.0,
+      "fall_threshold": -163.0,
+      "rise_training_events": 21485,
+      "fall_training_events": 20559,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "16": {
+      "rise_threshold": 154.0,
+      "fall_threshold": -167.0,
+      "rise_training_events": 21434,
+      "fall_training_events": 20606,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "17": {
+      "rise_threshold": 155.0,
+      "fall_threshold": -169.0,
+      "rise_training_events": 21495,
+      "fall_training_events": 20516,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "18": {
+      "rise_threshold": 154.0,
+      "fall_threshold": -167.0,
+      "rise_training_events": 21464,
+      "fall_training_events": 20555,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "19": {
+      "rise_threshold": 150.0,
+      "fall_threshold": -163.0,
+      "rise_training_events": 21494,
+      "fall_training_events": 20480,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "20": {
+      "rise_threshold": 144.0,
+      "fall_threshold": -156.0,
+      "rise_training_events": 21421,
+      "fall_training_events": 20572,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "21": {
+      "rise_threshold": 137.0,
+      "fall_threshold": -147.0,
+      "rise_training_events": 21410,
+      "fall_training_events": 20571,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "22": {
+      "rise_threshold": 130.0,
+      "fall_threshold": -138.0,
+      "rise_training_events": 21296,
+      "fall_training_events": 20634,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "23": {
+      "rise_threshold": 123.0,
+      "fall_threshold": -130.5,
+      "rise_training_events": 21347,
+      "fall_training_events": 20570,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    },
+    "24": {
+      "rise_threshold": 120.0,
+      "fall_threshold": -130.0,
+      "rise_training_events": 21489,
+      "fall_training_events": 20407,
+      "threshold_quantiles": {
+        "rise": 0.9,
+        "fall": 0.1
+      },
+      "minimum_training_events": 30,
+      "minimum_evaluation_pairs": 10
+    }
+  },
+  "large_event_definition": "Lead-specific q90 of positive and q10 of negative training origin-to-target AQI changes; threshold requires at least 30 training events; event metrics require at least 10 common evaluation pairs.",
+  "history_policy": "No interpolation; 169 consecutive observed readings required.",
+  "prediction_alignment": "origin is last observed hour; target = origin + horizon hours; common metric rows require finite predictions and observed actual for all four methods.",
+  "limitation": "Historical records end 2023-12-31; Q4 has been examined previously; validation was also used for underlying model early stopping; neither period is an independent untouched confirmation."
+}
